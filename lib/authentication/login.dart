@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:linepay/authentication/signup.dart';
+import 'package:linepay/main.dart';
 
 // LOGIN PAGE CLASS
 class LoginPage extends StatefulWidget {
@@ -100,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                                 context,
                                 MaterialPageRoute(
                                     //todo: replace with real home page
-                                    builder: (context) => const HomePage()));
+                                    builder: (context) => const MyHomePage()));
                           } on FirebaseAuthException {
                             _errorLogin = true;
                             setState(() {});
