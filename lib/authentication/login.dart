@@ -3,10 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:linepay/authentication/signup.dart';
 import 'package:linepay/main.dart';
+import 'package:camera/camera.dart';
+
 
 // LOGIN PAGE CLASS
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({Key? key, required this.camera}) : super(key: key);
+
+  final CameraDescription camera;
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -101,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                                 context,
                                 MaterialPageRoute(
                                     //todo: replace with real home page
-                                    builder: (context) => const MyHomePage()));
+                                    builder: (context) => NumericKeyboardPage(title: "Enter a Line Code")));
                           } on FirebaseAuthException {
                             _errorLogin = true;
                             setState(() {});
