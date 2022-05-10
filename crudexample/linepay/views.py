@@ -170,7 +170,13 @@ def JoinLine(request):
         lineCode = joinLineSerializer.data['lineCode']
         line = Line.objects.get(lineCode=lineCode)
         userID = joinLineSerializer.data['userID']
-        user = LinepayUser.objects.get(id=userID)
+        user = None
+        if(userID == "-1"):
+            #create temp user
+            user = LinepayUser(name="Temporary", email = "nope@email.com", isTemp = True)
+            user.save()
+        else:
+            user = LinepayUser.objects.get(id=userID)
         if(user.line != None):
             takeOutOfLine(line.id,userID)
             line = Line.objects.get(lineCode=lineCode)
@@ -179,17 +185,18 @@ def JoinLine(request):
             if(user != None):
                 user.line = line
                 if(not line.positions):
-                    initial = [int(userID)]
+                    initial = [int(user.id)]
                     line.positions = json.dumps(initial)
                 else:
                     print(line.positions)
                     list = json.loads(line.positions)
-                    list.append(int(userID))
+                    list.append(int(user.id))
                     line.positions = json.dumps(list)
                     print(line.positions)
                 line.save()
                 user.save()
                 data = joinLineSerializer.data
+                data['userID'] = user.id
                 data.update({"position": len(line.positions) + 1})
                 data.update({"lineID": line.id})
                 return Response(data, status=status.HTTP_201_CREATED)

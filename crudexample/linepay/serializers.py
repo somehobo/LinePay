@@ -35,7 +35,7 @@ class DecrementLineSerializer(serializers.Serializer):
 
 class JoinLineSerializer(serializers.Serializer):
     lineCode = serializers.CharField()
-    userID = serializers.CharField()
+    userID = serializers.CharField(required=False,default='-1')
 
 class CreateLineSerializer(serializers.Serializer):
     businessID = serializers.IntegerField()

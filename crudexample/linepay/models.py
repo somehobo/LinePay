@@ -29,9 +29,10 @@ class Line(models.Model):
 
 class LinepayUser(models.Model):
     name = models.CharField(max_length=20)
-    email = models.CharField(max_length=20, unique=True)
+    email = models.CharField(max_length=20)
     positionForSale = models.BooleanField(default=False)
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='users', blank=True, null=True)
+    isTemp = models.BooleanField(default=False)
     class Meta:
         db_table = "linepayUser"
 
