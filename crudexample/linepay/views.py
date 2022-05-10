@@ -79,7 +79,7 @@ def CreateBusinessOwner(request):
     if(businessOwnerSerializer.is_valid()):
         user = businessOwnerSerializer.save()
         data = businessOwnerSerializer.data
-        data.update({"usr-ID": user.id})
+        data.update({"userID": user.id})
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(businessOwnerSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,6 +110,29 @@ def CreateBusiness(request):
     return Response(businessSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# {"userID": userID}
+
+@api_view(['POST'])
+def GetOffers(request):
+    userSerializer = UserSerializer(data = request.data)
+    if(userSerializer.is_valid()):
+        print("before")
+        user = LinepayUser.objects.get(id=userSerializer.data['userID'])
+        print("after")
+
+        offers = Offer.objects.filter(line = user.line, madeTo = user.id)
+        results = []
+        for offer in offers:
+            row = [offer.amount,offer.madeBy.id,offer.madeTo.id]
+            results.append(row)
+        results.sort(key=lambda x:x[0])
+        print(results)
+        data = {'offers' : results}
+        return Response(data, status=status.HTTP_201_CREATED)
+    return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 # decrement line json format
 # {"lineID":1,"position":1}
 
@@ -120,7 +143,6 @@ def DecrementLine(request):
         lineID = decrementLineSerializer.data['lineID']
         position = decrementLineSerializer.data['position']
         takeOutOfLine(lineID, position)
-        print(status.HTTP_201_CREATED)
         return Response(decrementLineSerializer.data, status=status.HTTP_201_CREATED)
     return Response(decrementLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

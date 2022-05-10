@@ -26,14 +26,15 @@ router.register('lineDetails', views.LineAPI)
 router.register('businessDetails', views.BusinessAPI)
 
 urlpatterns = [
-path('', include(router.urls)),
-path('CreateUser/', views.LinePayCreateUser),
-path('LinePayUser/<str:userName>', views.LinePayGetUser),
-path('CreateBusiness/', views.CreateBusiness),
-path('DecrementLine/', views.DecrementLine),
-path('JoinLine/',views.JoinLine),
-path('CreateLine/',views.CreateLine),
-path('CreateBusinessOwner/',views.CreateBusinessOwner),
-path('GetLineData/',views.GetLineData),
-path('TogglePositionForSale/', views.TogglePositionForSale)
+    path('', include(router.urls)),
+    path('CreateUser/', views.LinePayCreateUser),
+    path('LinePayUser/<str:userName>', views.LinePayGetUser),
+    path('CreateBusiness/', views.CreateBusiness),
+    path('DecrementLine/', views.DecrementLine),
+    path('JoinLine/',views.JoinLine),
+    path('CreateLine/',views.CreateLine),
+    path('CreateBusinessOwner/',views.CreateBusinessOwner),
+    path('GetLineData/',views.GetLineData),
+    path('TogglePositionForSale/', views.TogglePositionForSale),
+    path('GetOffers/', views.GetOffers)
 ]

@@ -10,7 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
 class BusinessOwner(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    email = models.CharField(max_length=20, unique=True)
 
 class Business(models.Model):
     name = models.CharField(max_length=20)
@@ -28,7 +28,8 @@ class Line(models.Model):
         db_table = "line"
 
 class LinepayUser(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20)
+    email = models.CharField(max_length=20, unique=True)
     positionForSale = models.BooleanField(default=False)
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='users', blank=True, null=True)
     class Meta:
