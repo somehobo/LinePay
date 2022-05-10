@@ -4,6 +4,7 @@ from .serializers import *
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import json
 
 
 
@@ -34,15 +35,16 @@ class BusinessAPI(viewsets.ModelViewSet):
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
 
-def takeOutOfLine(lineID, position):
+def takeOutOfLine(lineID, userID):
     line = Line.objects.get(id=lineID)
-    toboot = line.positions[position]
-    line.positions = line.positions.replace(toboot, "")
+    positions = json.loads(line.positions)
+    print(userID)
+    print(positions)
+    positions.remove(int(userID))
+    print(positions)
+    line.positions = json.dumps(positions)
+    print(line.positions)
     line.save()
-    user = LinepayUser.objects.get(id=toboot)
-    user.line = None
-    user.save()
-    Offer.objects.filter(madeBy = toboot, madeTo = toboot)
 
 
 # notes: businessUsrId = 4, businessId = 5, line code= 4JSX, userID = 9, position=1
@@ -116,10 +118,7 @@ def CreateBusiness(request):
 def GetOffers(request):
     userSerializer = UserSerializer(data = request.data)
     if(userSerializer.is_valid()):
-        print("before")
         user = LinepayUser.objects.get(id=userSerializer.data['userID'])
-        print("after")
-
         offers = Offer.objects.filter(line = user.line, madeTo = user.id)
         results = []
         for offer in offers:
@@ -162,7 +161,7 @@ def CreateLine(request):
     return Response(lineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# {"lineCode":"5Y65","userID":1}
+# {"lineCode":"fpCg","userID":1}
 
 @api_view(['POST'])
 def JoinLine(request):
@@ -172,13 +171,22 @@ def JoinLine(request):
         line = Line.objects.get(lineCode=lineCode)
         userID = joinLineSerializer.data['userID']
         user = LinepayUser.objects.get(id=userID)
-        if (user.line != None):
-            takeOutOfLine(line.id, user.line.positions.index(str(user.id)))
+        if(user.line != None):
+            takeOutOfLine(line.id,userID)
+            line = Line.objects.get(lineCode=lineCode)
 
         if(line != None):
             if(user != None):
                 user.line = line
-                line.positions = line.positions + str(user.id)
+                if(not line.positions):
+                    initial = [int(userID)]
+                    line.positions = json.dumps(initial)
+                else:
+                    print(line.positions)
+                    list = json.loads(line.positions)
+                    list.append(int(userID))
+                    line.positions = json.dumps(list)
+                    print(line.positions)
                 line.save()
                 user.save()
                 data = joinLineSerializer.data
