@@ -27,7 +27,7 @@ class BusinessSerializer(serializers.ModelSerializer):
 class BusinessOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessOwner
-        fields = ["name", "business"]
+        fields = ["name", "email"]
 
 class DecrementLineSerializer(serializers.Serializer):
     lineID = serializers.IntegerField()

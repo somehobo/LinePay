@@ -10,7 +10,8 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
 class BusinessOwner(models.Model):
-    email = models.CharField(max_length=20, unique=True)
+    email = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=20)
 
 class Business(models.Model):
     name = models.CharField(max_length=20)
