@@ -216,13 +216,14 @@ def GetLineData(request):
         offersToMeSend = Offer.objects.filter(line = lineID, madeTo = userID).count() or 0
         print(offersToMeSend)
         offersFromMeSend = Offer.objects.filter(line = lineID, madeBy = userID).count() or 0
-        positionSend = line.positions.index(str(user.id)) +1
+        list = json.loads(line.positions)
+        positionSend = list.index(int(user.id)) + 1
         positionsForSale = LinepayUser.objects.filter(line=lineID,positionForSale=True)
         positionsForSaleSend = []
         if (positionsForSale):
             for position in positionsForSale:
                 if (position != user):
-                    positionsForSaleSend.append(line.positions.index(str(position.id)))
+                    positionsForSaleSend.append(list.index(int(position.id)))
 
         lineNameSend = line.name
         data = getLineSerializer.data
