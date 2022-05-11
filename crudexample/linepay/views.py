@@ -4,6 +4,7 @@ from .serializers import *
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import json
 
 
 
@@ -34,15 +35,15 @@ class BusinessAPI(viewsets.ModelViewSet):
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
 
-def takeOutOfLine(lineID, position):
+def takeOutOfLine(lineID, userID):
     line = Line.objects.get(id=lineID)
-    toboot = line.positions[position]
-    line.positions = line.positions.replace(toboot, "")
-    line.save()
-    user = LinepayUser.objects.get(id=toboot)
+    positions = json.loads(line.positions)
+    positions.remove(int(userID))
+    user = LinepayUser.objects.get(id=userID)
     user.line = None
     user.save()
-    Offer.objects.filter(madeBy = toboot, madeTo = toboot)
+    line.positions = json.dumps(positions)
+    line.save()
 
 
 # notes: businessUsrId = 4, businessId = 5, line code= 4JSX, userID = 9, position=1
@@ -79,7 +80,7 @@ def CreateBusinessOwner(request):
     if(businessOwnerSerializer.is_valid()):
         user = businessOwnerSerializer.save()
         data = businessOwnerSerializer.data
-        data.update({"usr-ID": user.id})
+        data.update({"userID": user.id})
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(businessOwnerSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,6 +111,26 @@ def CreateBusiness(request):
     return Response(businessSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# {"userID": userID}
+
+@api_view(['POST'])
+def GetOffers(request):
+    userSerializer = UserSerializer(data = request.data)
+    if(userSerializer.is_valid()):
+        user = LinepayUser.objects.get(id=userSerializer.data['userID'])
+        offers = Offer.objects.filter(line = user.line, madeTo = user.id)
+        results = []
+        for offer in offers:
+            row = [offer.amount,offer.madeBy.id,offer.madeTo.id]
+            results.append(row)
+        results.sort(key=lambda x:x[0])
+        print(results)
+        data = {'offers' : results}
+        return Response(data, status=status.HTTP_201_CREATED)
+    return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 # decrement line json format
 # {"lineID":1,"position":1}
 
@@ -120,7 +141,6 @@ def DecrementLine(request):
         lineID = decrementLineSerializer.data['lineID']
         position = decrementLineSerializer.data['position']
         takeOutOfLine(lineID, position)
-        print(status.HTTP_201_CREATED)
         return Response(decrementLineSerializer.data, status=status.HTTP_201_CREATED)
     return Response(decrementLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -140,7 +160,42 @@ def CreateLine(request):
     return Response(lineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# {"lineCode":"5Y65","userID":1}
+# {"email":"test@mail.com", "userID":2}
+
+@api_view(["POST"])
+def LoginLineUser(request):
+    emailSerializer = EmailSerializer(data=request.data)
+    if(emailSerializer.is_valid()):
+        userID = emailSerializer.data["userID"]
+        email = emailSerializer.data["email"]
+        oldUser = LinepayUser.objects.get(id=userID)
+        user = None
+        reuseTemp = False
+        if(LinepayUser.objects.filter(email = email).exists()):
+            user = LinepayUser.objects.get(email = email)
+            user.line = oldUser.line
+        else:
+            reuseTemp = True
+            oldUser.email = email
+            oldUser.isTemp = False
+            oldUser.save()
+            user = oldUser
+
+        if(user.line != None and not reuseTemp):
+            #replace temp user in line if they are in one
+            line = user.line
+            positions = json.loads(line.positions)
+            ind = positions.index(int(user.id))
+            positions.remove(int(user.id))
+            positions.insert(ind, user.id)
+            line.positions = json.dumps(positions)
+            line.save()
+        data = {'userID': user.id}
+        return Response(data, status=status.HTTP_201_CREATED)
+    return Response(emailSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# {"lineCode":"fpCg","userID":1}
 
 @api_view(['POST'])
 def JoinLine(request):
@@ -149,18 +204,33 @@ def JoinLine(request):
         lineCode = joinLineSerializer.data['lineCode']
         line = Line.objects.get(lineCode=lineCode)
         userID = joinLineSerializer.data['userID']
-        user = LinepayUser.objects.get(id=userID)
-        if (user.line != None):
-            takeOutOfLine(line.id, user.line.positions.index(str(user.id)))
+        user = None
+        if(userID == "-1"):
+            #create temp user
+            user = LinepayUser(email = "nope@email.com", isTemp = True)
+            user.save()
+        else:
+            user = LinepayUser.objects.get(id=userID)
+        if(user.line != None):
+            takeOutOfLine(line.id,userID)
+            line = Line.objects.get(lineCode=lineCode)
 
         if(line != None):
             if(user != None):
                 user.line = line
-                line.positions = line.positions + str(user.id)
+                if(not line.positions):
+                    initial = [int(user.id)]
+                    line.positions = json.dumps(initial)
+                else:
+                    print(line.positions)
+                    list = json.loads(line.positions)
+                    list.append(int(user.id))
+                    line.positions = json.dumps(list)
+                    print(line.positions)
                 line.save()
                 user.save()
                 data = joinLineSerializer.data
-                data.update({"position": len(line.positions) + 1})
+                data['userID'] = user.id
                 data.update({"lineID": line.id})
                 return Response(data, status=status.HTTP_201_CREATED)
     return Response(joinLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -179,13 +249,14 @@ def GetLineData(request):
         offersToMeSend = Offer.objects.filter(line = lineID, madeTo = userID).count() or 0
         print(offersToMeSend)
         offersFromMeSend = Offer.objects.filter(line = lineID, madeBy = userID).count() or 0
-        positionSend = line.positions.index(str(user.id)) +1
+        list = json.loads(line.positions)
+        positionSend = list.index(int(user.id)) + 1
         positionsForSale = LinepayUser.objects.filter(line=lineID,positionForSale=True)
         positionsForSaleSend = []
         if (positionsForSale):
             for position in positionsForSale:
                 if (position != user):
-                    positionsForSaleSend.append(line.positions.index(str(position.id)))
+                    positionsForSaleSend.append(list.index(int(position.id)))
 
         lineNameSend = line.name
         data = getLineSerializer.data
