@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:linepay/LinePayColors.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
 
 
 class CustomTheme {

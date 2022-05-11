@@ -4,22 +4,20 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:linepay/InQueue.dart';
-import 'package:linepay/LinePayColors.dart';
+import 'package:linepay/user/InQueue.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
 import 'package:linepay/authentication/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:linepay/authentication/firebase_options.dart';
 import 'ApiCalling/Api.dart';
-import 'LinePayTheme.dart';
-
+import 'preferences/LinePayTheme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,15 +29,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'LinePay',
       theme: CustomTheme.lightTheme,
-      home: NumericKeyboardPage(title: "Enter a line code"),
+      home: const NumericKeyboardPage(),
     );
   }
 }
 
 class NumericKeyboardPage extends StatefulWidget {
-  NumericKeyboardPage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const NumericKeyboardPage({Key? key}) : super(key: key);
 
   @override
   _NumericKeyboardState createState() => _NumericKeyboardState();
@@ -51,41 +47,96 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: backGround,
-        title: Text(widget.title,
-          style: TextStyle(
-            fontFamily: 'Open Sans',
-            fontSize: 24,
-            color: text_color,
-          ),),
-      ),
-      body: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(8.0),
-        child: (_futureJoinLineResponse == null) ? buildColumn() : buildFutureBuilder(),
-
-      )
-    );
+        body: Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(8.0),
+      child: (_futureJoinLineResponse == null)
+          ? buildColumn()
+          : buildFutureBuilder(),
+    ));
   }
 
   Column buildColumn() {
     return Column(
-      children: <Widget>[
-      TextField(
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: 'Enter a line code',
-        ),
-        onSubmitted: (value) {
-          print('onSubmitted');
-          setState(() {
-            _futureJoinLineResponse = joinLine(value, "1");
-          });
-        },
-      ),
-      ]
-    );
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Flexible(
+            flex: 5,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Flexible(
+                  flex: 3,
+                  child: Text(
+                    'LinePay',
+                    style: TextStyle(fontSize: 48, color: text_color),
+                  ),
+                ),
+                const SizedBox(height: 150),
+                // const Spacer(),
+                Flexible(
+                  flex: 2,
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      hintText: 'Enter a line code',
+                      hintStyle: const TextStyle(color: Colors.white),
+                      fillColor: Theme.of(context).primaryColor,
+                      filled: true,
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    onSubmitted: (value) {
+                      print('onSubmitted');
+                      setState(() {
+                        _futureJoinLineResponse = joinLine(value, "1");
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  child: InkWell(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text('Are you a business?',
+                              style:
+                                  TextStyle(fontSize: 28, color: text_color)),
+                          Text('Tap here to host!',
+                              style: TextStyle(fontSize: 28, color: text_color))
+                        ],
+                      ),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()))),
+                )
+                // TextButton(
+                //     onPressed: () => Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //             builder: (context) => const LoginPage())),
+                //     child: const Text(
+                //       'Are you a business?\n  Tap here to host!',
+                //       style: TextStyle(fontSize: 28, color: text_color),
+                //     )),
+                ),
+          ),
+          const SizedBox(height: 50)
+        ]);
   }
 
   FutureBuilder<JoinLineResponse> buildFutureBuilder() {
@@ -93,35 +144,20 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
       future: _futureJoinLineResponse,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          WidgetsBinding.instance.addPostFrameCallback((_){
+          WidgetsBinding.instance?.addPostFrameCallback((_) {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  //todo: replace with real home page
-                    builder: (context) => InQueuePage(lineID: snapshot.data!.lineID, userID: snapshot.data!.userID,)));
+                    //todo: replace with real home page
+                    builder: (context) => InQueuePage(
+                          lineID: snapshot.data!.lineID,
+                          userID: snapshot.data!.userID,
+                        )));
           });
         } else if (snapshot.hasError) {
-          return Column(
-              children: <Widget>[
-                TextField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter a line code',
-                  ),
-                  onSubmitted: (value) {
-                    print('onSubmitted');
-                    setState(() {
-                      _futureJoinLineResponse = joinLine(value, "1");
-                    });
-                  },
-                ),
-                Text('${snapshot.error}')
-              ]
-          );
+          return buildColumn();
         }
-        return Center(
-            child:CircularProgressIndicator()
-        );
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
