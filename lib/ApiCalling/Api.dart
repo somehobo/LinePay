@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 const linePayURL = "http://10.0.2.2:8000/";
 
 //Join Line
-
 Future<JoinLineResponse> joinLine(String lineCode, String userID) async {
   final response = await http.post(
     Uri.parse(linePayURL+'JoinLine/'),
@@ -25,7 +24,6 @@ Future<JoinLineResponse> joinLine(String lineCode, String userID) async {
     throw Exception('Failed to Join Line.');
   }
 }
-
 
 class JoinLineResponse {
   final String lineCode;
@@ -49,8 +47,8 @@ class JoinLineResponse {
   }
 }
 
-// Line Data
 
+// Line Data
 Future<LineDataResponse> getLineData(String lineID, String userID) async {
   final response = await http.post(
     Uri.parse(linePayURL+'GetLineData/'),
@@ -101,6 +99,7 @@ class LineDataResponse {
   }
 }
 
+
 //toggle line for sale
 Future<http.Response> toggleSale(String userID) async {
   return http.post(
@@ -113,4 +112,42 @@ Future<http.Response> toggleSale(String userID) async {
     }),
   );
 }
+
+
+//authenticate in line user
+Future<LineDataResponse> authenticateLineUser(String email, String userID) async {
+  final response = await http.post(
+    Uri.parse(linePayURL+'LoginUser/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'lineID': email,
+      'userID': userID
+    }),
+  );
+  if(response.statusCode == 201) {
+    return LineDataResponse.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to Get Line Data.');
+  }
+}
+
+class AuthenticateLineUserResponse {
+  final String userID;
+
+  const AuthenticateLineUserResponse({
+    required this.userID
+  });
+  factory AuthenticateLineUserResponse.fromJson(Map<String, dynamic> json) {
+    return AuthenticateLineUserResponse(
+        userID: json['userID']
+    );
+  }
+}
+
+
+
+
+
 

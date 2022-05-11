@@ -38,12 +38,11 @@ class BusinessAPI(viewsets.ModelViewSet):
 def takeOutOfLine(lineID, userID):
     line = Line.objects.get(id=lineID)
     positions = json.loads(line.positions)
-    print(userID)
-    print(positions)
     positions.remove(int(userID))
-    print(positions)
+    user = LinepayUser.objects.get(id=userID)
+    user.line = None
+    user.save()
     line.positions = json.dumps(positions)
-    print(line.positions)
     line.save()
 
 
@@ -161,6 +160,41 @@ def CreateLine(request):
     return Response(lineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# {"email":"test@mail.com", "userID":2}
+
+@api_view(["POST"])
+def LoginLineUser(request):
+    emailSerializer = EmailSerializer(data=request.data)
+    if(emailSerializer.is_valid()):
+        userID = emailSerializer.data["userID"]
+        email = emailSerializer.data["email"]
+        oldUser = LinepayUser.objects.get(id=userID)
+        user = None
+        reuseTemp = False
+        if(LinepayUser.objects.filter(email = email).exists()):
+            user = LinepayUser.objects.get(email = email)
+            user.line = oldUser.line
+        else:
+            reuseTemp = True
+            oldUser.email = email
+            oldUser.isTemp = False
+            oldUser.save()
+            user = oldUser
+
+        if(user.line != None and not reuseTemp):
+            #replace temp user in line if they are in one
+            line = user.line
+            positions = json.loads(line.positions)
+            ind = positions.index(int(user.id))
+            positions.remove(int(user.id))
+            positions.insert(ind, user.id)
+            line.positions = json.dumps(positions)
+            line.save()
+        data = {'userID': user.id}
+        return Response(data, status=status.HTTP_201_CREATED)
+    return Response(emailSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # {"lineCode":"fpCg","userID":1}
 
 @api_view(['POST'])
@@ -173,7 +207,7 @@ def JoinLine(request):
         user = None
         if(userID == "-1"):
             #create temp user
-            user = LinepayUser(name="Temporary", email = "nope@email.com", isTemp = True)
+            user = LinepayUser(email = "nope@email.com", isTemp = True)
             user.save()
         else:
             user = LinepayUser.objects.get(id=userID)
@@ -197,7 +231,6 @@ def JoinLine(request):
                 user.save()
                 data = joinLineSerializer.data
                 data['userID'] = user.id
-                data.update({"position": len(line.positions) + 1})
                 data.update({"lineID": line.id})
                 return Response(data, status=status.HTTP_201_CREATED)
     return Response(joinLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

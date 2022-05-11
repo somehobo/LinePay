@@ -29,7 +29,6 @@ class Line(models.Model):
         db_table = "line"
 
 class LinepayUser(models.Model):
-    name = models.CharField(max_length=20)
     email = models.CharField(max_length=20)
     positionForSale = models.BooleanField(default=False)
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='users', blank=True, null=True)

@@ -11,7 +11,7 @@ class OfferSerializer(serializers.ModelSerializer):
 class LinepayUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = LinepayUser
-        fields = ("name", "email", "line", "offersTo", "offersFrom", "positionForSale")
+        fields = ("email", "line", "offersTo", "offersFrom", "positionForSale", "isTemp")
 
 
 class LineSerializer(serializers.ModelSerializer):
@@ -46,4 +46,8 @@ class GetLineSerializer(serializers.Serializer):
     userID = serializers.CharField()
 
 class UserSerializer(serializers.Serializer):
+    userID = serializers.CharField()
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.CharField()
     userID = serializers.CharField()
