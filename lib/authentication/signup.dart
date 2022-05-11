@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
 
 // SIGN UP PAGE CLASS
 class SignUpPage extends StatefulWidget {
@@ -25,7 +26,16 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up!'),
+        leading: const BackButton(color: text_color),
+        backgroundColor: backGround,
+        title: const Text(
+          'Sign Up',
+          style: TextStyle(
+            fontFamily: 'Open Sans',
+            fontSize: 24,
+            color: text_color,
+          ),
+        ),
         centerTitle: true,
       ),
       body: Center(
@@ -34,7 +44,7 @@ class _SignUpPageState extends State<SignUpPage> {
             width: 320,
             height: 400,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).primaryColor,
               border: Border.all(
                 color: Colors.black,
               ),
@@ -51,8 +61,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Text(
                       'Create an account:',
                       style: TextStyle(
+                        fontFamily: 'Open Sans',
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),

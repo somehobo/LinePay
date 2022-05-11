@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:linepay/ApiCalling/Api.dart';
-import 'package:linepay/LinePayColors.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
 
 // OFFERS PAGE CLASS
 class OffersPage extends StatefulWidget {
@@ -32,6 +32,7 @@ class _OffersPageState extends State<OffersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: const BackButton(color: text_color),
           backgroundColor: backGround,
           title: const Text(
             'Offers Page',
@@ -60,6 +61,7 @@ class _OffersPageState extends State<OffersPage> {
                 ),
                 textAlign: TextAlign.center,
               )),
+              const SizedBox(height: 20),
               StreamBuilder(
                 stream: _lineData,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {

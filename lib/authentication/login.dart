@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
+import 'package:linepay/business/Host.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:linepay/authentication/signup.dart';
 import 'package:linepay/main.dart';
-import 'package:camera/camera.dart';
-
 
 // LOGIN PAGE CLASS
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key, required this.camera}) : super(key: key);
-
-  final CameraDescription camera;
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -27,7 +25,16 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('PingMe'),
+        leading: const BackButton(color: text_color),
+        backgroundColor: backGround,
+        title: const Text(
+          'LinePay',
+          style: TextStyle(
+            fontFamily: 'Open Sans',
+            fontSize: 24,
+            color: text_color,
+          ),
+        ),
         centerTitle: true,
       ),
       body: Center(
@@ -38,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 320,
               height: 370,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).primaryColor,
                 border: Border.all(
                   color: Colors.black,
                 ),
@@ -53,10 +60,12 @@ class _LoginPageState extends State<LoginPage> {
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Login:',
+                        'Business Login:',
                         style: TextStyle(
+                          fontFamily: 'Open Sans',
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -98,15 +107,11 @@ class _LoginPageState extends State<LoginPage> {
                                     email: emailController.text,
                                     password: passwordController.text);
                             setState(() {});
-                            // Adding user's email to Shared Preferences
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            prefs.setString('userEmail', emailController.text);
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    //todo: replace with real home page
-                                    builder: (context) => NumericKeyboardPage(title: "Enter a Line Code")));
+                                    builder: (context) =>
+                                        const HostPage()));
                           } on FirebaseAuthException {
                             _errorLogin = true;
                             setState(() {});
@@ -147,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: const Text('Sign up',
                     style: TextStyle(fontSize: 25, color: Colors.white)),
                 style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Theme.of(context).primaryColor,
                 ))
           ],
         ),
