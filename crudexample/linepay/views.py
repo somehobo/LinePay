@@ -36,14 +36,18 @@ class BusinessAPI(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
 
 def takeOutOfLine(lineID, userID):
-    line = Line.objects.get(id=lineID)
-    positions = json.loads(line.positions)
-    positions.remove(int(userID))
-    user = LinepayUser.objects.get(id=userID)
-    user.line = None
-    user.save()
-    line.positions = json.dumps(positions)
-    line.save()
+    line = lineID
+    print("before")
+    print(line.positions)
+    if(line.positions != ""):
+        positions = json.loads(line.positions)
+        print("after")
+        positions.remove(int(userID))
+        user = LinepayUser.objects.get(id=userID)
+        user.line = None
+        user.save()
+        line.positions = json.dumps(positions)
+        line.save()
 
 
 # notes: businessUsrId = 4, businessId = 5, line code= 4JSX, userID = 9, position=1
@@ -212,7 +216,7 @@ def JoinLine(request):
         else:
             user = LinepayUser.objects.get(id=userID)
         if(user.line != None):
-            takeOutOfLine(line.id,userID)
+            takeOutOfLine(user.line,userID)
             line = Line.objects.get(lineCode=lineCode)
 
         if(line != None):
@@ -230,8 +234,9 @@ def JoinLine(request):
                 line.save()
                 user.save()
                 data = joinLineSerializer.data
-                data['userID'] = user.id
+                data['userID'] = str(user.id)
                 data.update({"lineID": line.id})
+                print(data)
                 return Response(data, status=status.HTTP_201_CREATED)
     return Response(joinLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-const linePayURL = "http://127.0.0.1:8000/";
+const linePayURL = "http://10.0.2.2:8000/";
 
 //Join Line
 Future<JoinLineResponse> joinLine(String lineCode, String userID) async {
@@ -13,10 +13,11 @@ Future<JoinLineResponse> joinLine(String lineCode, String userID) async {
     },
     body: jsonEncode(<String, String>{'lineCode': lineCode, 'userID': userID}),
   );
-  print(response.statusCode);
 
+  print(response.statusCode);
   if (response.statusCode == 201) {
-    return JoinLineResponse.fromJson(jsonDecode(response.body));
+    var joinLineResponse = JoinLineResponse.fromJson(jsonDecode(response.body));
+    return joinLineResponse;
   } else {
     throw Exception('Failed to Join Line.');
   }
@@ -25,19 +26,16 @@ Future<JoinLineResponse> joinLine(String lineCode, String userID) async {
 class JoinLineResponse {
   final String lineCode;
   final int lineID;
-  final int position;
   final String userID;
 
   const JoinLineResponse(
       {required this.lineCode,
       required this.lineID,
-      required this.position,
       required this.userID});
   factory JoinLineResponse.fromJson(Map<String, dynamic> json) {
     return JoinLineResponse(
         lineCode: json['lineCode'],
         lineID: json['lineID'],
-        position: json['position'],
         userID: json['userID']);
   }
 }
