@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-const linePayURL = "http://10.0.2.2:8000/";
+// const linePayURL = "http://10.0.2.2:8000/";
+const linePayURL = "http://127.0.0.1:8000/";
 
 //Join Line
 Future<JoinLineResponse> joinLine(String lineCode, String userID) async {
@@ -29,9 +30,7 @@ class JoinLineResponse {
   final String userID;
 
   const JoinLineResponse(
-      {required this.lineCode,
-      required this.lineID,
-      required this.userID});
+      {required this.lineCode, required this.lineID, required this.userID});
   factory JoinLineResponse.fromJson(Map<String, dynamic> json) {
     return JoinLineResponse(
         lineCode: json['lineCode'],
@@ -39,7 +38,6 @@ class JoinLineResponse {
         userID: json['userID']);
   }
 }
-
 
 // Line Data
 Future<LineDataResponse> getLineData(String lineID, String userID) async {
@@ -87,7 +85,6 @@ class LineDataResponse {
   }
 }
 
-
 //toggle line for sale
 Future<http.Response> toggleSale(String userID) async {
   return http.post(
@@ -99,21 +96,17 @@ Future<http.Response> toggleSale(String userID) async {
   );
 }
 
-
-
 //authenticate in line user
-Future<LineDataResponse> authenticateLineUser(String email, String userID) async {
+Future<LineDataResponse> authenticateLineUser(
+    String email, String userID) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'LoginUser/'),
+    Uri.parse(linePayURL + 'LoginUser/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'lineID': email,
-      'userID': userID
-    }),
+    body: jsonEncode(<String, String>{'lineID': email, 'userID': userID}),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
     return LineDataResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
@@ -123,14 +116,8 @@ Future<LineDataResponse> authenticateLineUser(String email, String userID) async
 class AuthenticateLineUserResponse {
   final String userID;
 
-  const AuthenticateLineUserResponse({
-    required this.userID
-  });
+  const AuthenticateLineUserResponse({required this.userID});
   factory AuthenticateLineUserResponse.fromJson(Map<String, dynamic> json) {
-    return AuthenticateLineUserResponse(
-        userID: json['userID']
-    );
+    return AuthenticateLineUserResponse(userID: json['userID']);
   }
 }
-
-
