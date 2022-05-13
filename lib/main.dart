@@ -10,6 +10,7 @@ import 'package:linepay/authentication/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:linepay/authentication/firebase_options.dart';
 import 'ApiCalling/Api.dart';
+import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
 
 Future<void> main() async {
@@ -93,7 +94,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     onSubmitted: (value) {
                       print('onSubmitted');
                       setState(() {
-                        _futureJoinLineResponse = joinLine(value, "1");
+                        _futureJoinLineResponse = joinLine(value);
                       });
                     },
                   ),

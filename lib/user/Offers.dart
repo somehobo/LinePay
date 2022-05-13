@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:linepay/ApiCalling/Api.dart';
+import 'package:linepay/ApiCalling/ResponseObjects.dart';
 import 'package:linepay/preferences/LinePayColors.dart';
 
 // OFFERS PAGE CLASS
@@ -16,16 +17,22 @@ class OffersPage extends StatefulWidget {
 
 class _OffersPageState extends State<OffersPage> {
   late Stream<LineDataResponse> _lineData;
-
+  var _clockTimer;
   @override
   void initState() {
     super.initState();
     _lineData =
         Stream.fromFuture(getLineData(widget.lineID.toString(), widget.userID));
-    Timer.periodic(const Duration(seconds: 2), (timer) async {
+    _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       _lineData = Stream.fromFuture(
           getLineData(widget.lineID.toString(), widget.userID));
     });
+  }
+
+  @override
+  void dispose() {
+    _clockTimer.cancel();
+    super.dispose();
   }
 
   @override

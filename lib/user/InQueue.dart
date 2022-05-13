@@ -12,6 +12,7 @@ import 'package:linepay/authentication/firebase_options.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:linepay/ApiCalling/Api.dart';
+import 'package:linepay/ApiCalling/ResponseObjects.dart';
 import 'package:collection/collection.dart';
 import 'package:linepay/user/Offers.dart';
 
@@ -37,11 +38,12 @@ class InQueuePage extends StatefulWidget {
 class _InQueuePageState extends State<InQueuePage> {
   var lineCode = "";
   var lineName = "";
-  var position = 10;
+  var position = 0;
   var estWaitTime = 23;
   var number = 22;
   var offers = 0;
   var forSale = false;
+  var _clockTimer;
   //will depend of whether or not line is listed in backend
   var listedPos = false;
   var lineSales = [
@@ -49,9 +51,15 @@ class _InQueuePageState extends State<InQueuePage> {
   ];
 
   @override
+  void dispose() {
+    _clockTimer.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 2), (timer) async {
+    _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       print(timer.tick);
       LineDataResponse _lineDataResponse =
           await getLineData(widget.lineID.toString(), widget.userID);
@@ -70,7 +78,6 @@ class _InQueuePageState extends State<InQueuePage> {
       var newOffers = _lineDataResponse.offersToMe;
       if (newOffers != offers) {
         setState(() {
-          print(newOffers);
           offers = newOffers;
         });
       }
@@ -113,10 +120,14 @@ class _InQueuePageState extends State<InQueuePage> {
                 "Leave",
                 style: TextStyle(color: text_color),
               ),
-              onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NumericKeyboardPage()))),
+              onPressed: () => {
+                leaveLine(widget.userID),
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NumericKeyboardPage()),
+                    (route) => false)
+              }),
           title: Text(
             'In Line for: ' + lineName,
             style: const TextStyle(
@@ -171,12 +182,12 @@ class _InQueuePageState extends State<InQueuePage> {
                         ],
                       ),
                     )),
-                const Padding(padding: EdgeInsets.only(top: 10)),
-                Text(
-                  "Estimated wait time: " + estWaitTime.toString() + " min",
-                  style: const TextStyle(fontSize: 20),
-                  textAlign: TextAlign.left,
-                ),
+                // const Padding(padding: EdgeInsets.only(top: 10)),
+                // Text(
+                //   "Estimated wait time: " + estWaitTime.toString() + " min",
+                //   style: const TextStyle(fontSize: 20),
+                //   textAlign: TextAlign.left,
+                // ),
               ],
             ),
             bottomLinesSheet()
@@ -217,14 +228,13 @@ class _InQueuePageState extends State<InQueuePage> {
     return FloatingActionButton.extended(
       onPressed: () => toggleSale(widget.userID),
       label: const Text(
-        "Offers: 0",
+        "List Position",
         style: TextStyle(color: Colors.black),
       ),
     );
   }
 
   navigateToOffers() {
-    print("navigate to offers");
     Navigator.push(
       context,
       MaterialPageRoute(

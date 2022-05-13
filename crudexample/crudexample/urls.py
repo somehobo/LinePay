@@ -37,5 +37,6 @@ urlpatterns = [
     path('GetLineData/',views.GetLineData),
     path('TogglePositionForSale/', views.TogglePositionForSale),
     path('GetOffers/', views.GetOffers),
-    path('LoginUser/', views.LoginLineUser)
+    path('LoginUser/', views.LoginLineUser),
+    path('leaveLine/',views.LeaveLine)
 ]

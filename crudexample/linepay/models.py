@@ -11,7 +11,6 @@ from django.contrib.postgres.fields import ArrayField
 
 class BusinessOwner(models.Model):
     email = models.CharField(max_length=30, unique=True)
-    name = models.CharField(max_length=20)
 
 class Business(models.Model):
     name = models.CharField(max_length=20)
@@ -23,7 +22,7 @@ class Business(models.Model):
 class Line(models.Model):
     name = models.CharField(max_length=20)
     lineCode = ShortUUIDField(default=shortuuid.ShortUUID().random(length=4), editable=False)
-    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='lines', blank=True, null=True)
+    businessOwner = models.ForeignKey(BusinessOwner, on_delete=models.CASCADE, related_name='lines', blank=True, null=True)
     positions = models.CharField(default = "", max_length=2000, null=True, blank=True)
     class Meta:
         db_table = "line"
