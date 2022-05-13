@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:linepay/user/DefaultUser.dart';
 import 'package:linepay/user/InQueue.dart';
 import 'package:linepay/preferences/LinePayColors.dart';
 import 'package:linepay/authentication/login.dart';
@@ -122,18 +123,8 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginPage()))),
-                )
-                // TextButton(
-                //     onPressed: () => Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //             builder: (context) => const LoginPage())),
-                //     child: const Text(
-                //       'Are you a business?\n  Tap here to host!',
-                //       style: TextStyle(fontSize: 28, color: text_color),
-                //     )),
-                ),
+                              builder: (context) => const LoginPage(isBusiness: true)))),
+                )),
           ),
           const SizedBox(height: 50)
         ]);
@@ -149,10 +140,12 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                 context,
                 MaterialPageRoute(
                     //todo: replace with real home page
-                    builder: (context) => InQueuePage(
-                          lineID: snapshot.data!.lineID,
-                          userID: snapshot.data!.userID,
-                        )));
+                    builder: (context) => 
+                    DefaultUser(lineInfo: _futureJoinLineResponse)
+                    // InQueuePage(
+                    //       lineID: snapshot.data!.lineID,
+                    //       userID: snapshot.data!.userID,)
+                        ));
           });
         } else if (snapshot.hasError) {
           return buildColumn();
