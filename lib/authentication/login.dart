@@ -8,7 +8,8 @@ import 'package:linepay/main.dart';
 
 // LOGIN PAGE CLASS
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({Key? key, required this.isBusiness}) : super(key: key);
+  final bool isBusiness;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -57,11 +58,11 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     const SizedBox(height: 35),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Business Login:',
-                        style: TextStyle(
+                        (widget.isBusiness) ? 'Business Login:' : 'Login:',
+                        style: const TextStyle(
                           fontFamily: 'Open Sans',
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -111,7 +112,8 @@ class _LoginPageState extends State<LoginPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const HostPage()));
+                                    //todo: InQueue page navigation info
+                                     const HostPage()));
                           } on FirebaseAuthException {
                             _errorLogin = true;
                             setState(() {});
