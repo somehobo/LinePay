@@ -108,7 +108,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
             child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.only(left: 10, right: 10),
                   child: InkWell(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
