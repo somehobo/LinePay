@@ -1,18 +1,81 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:linepay/ApiCalling/Api.dart';
+import 'package:linepay/ApiCalling/ResponseObjects.dart';
 import 'package:linepay/authentication/login.dart';
 import 'package:linepay/preferences/LinePayColors.dart';
 
+import '../main.dart';
+
 // DEFAULT USER CLASS
 class DefaultUser extends StatefulWidget {
-  const DefaultUser({Key? key, required this.lineInfo}) : super(key: key);
-  final Future<JoinLineResponse>? lineInfo;
-
+  const DefaultUser({Key? key,  required this.userID, required this.lineID}) : super(key: key);
+  final int lineID;
+  final String userID;
   @override
   State<DefaultUser> createState() => _DefaultUserState();
 }
 
 class _DefaultUserState extends State<DefaultUser> {
+  var lineCode = "";
+  var lineName = "";
+  var position = 0;
+  var estWaitTime = 23;
+  var number = 22;
+  var offers = 0;
+  var forSale = false;
+  var _clockTimer;
+  //will depend of whether or not line is listed in backend
+  var listedPos = false;
+
+
+  @override
+  void dispose() {
+    _clockTimer.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      print(timer.tick);
+      LineDataResponse _lineDataResponse =
+      await getLineData(widget.lineID.toString(), widget.userID);
+      var newLineName = _lineDataResponse.lineName;
+      if (newLineName != lineName) {
+        setState(() {
+          lineName = _lineDataResponse.lineName;
+        });
+      }
+      var newPosition = _lineDataResponse.position;
+      if (newPosition != position) {
+        setState(() {
+          position = newPosition;
+        });
+      }
+      var newOffers = _lineDataResponse.offersToMe;
+      if (newOffers != offers) {
+        setState(() {
+          offers = newOffers;
+        });
+      }
+      var newForsale = _lineDataResponse.positionForSale;
+      if (forSale != newForsale) {
+        setState(() {
+          forSale = newForsale;
+        });
+      }
+      var newLineCode = _lineDataResponse.lineCode;
+      if (newLineCode != lineCode) {
+        setState(() {
+          lineCode = newLineCode;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +92,7 @@ class _DefaultUserState extends State<DefaultUser> {
                 alignment: Alignment.center,
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children:  [
                       Flexible(
                           flex: 1,
                           child: Text('In line for:',
@@ -39,16 +102,14 @@ class _DefaultUserState extends State<DefaultUser> {
                               ))),
                       Flexible(
                           flex: 1,
-                          // todo: business/line name goes here
-                          child: Text('Business',
+                          child: Text(lineName,
                               style:
                                   TextStyle(fontSize: 38, color: text_color))),
                       Spacer(),
-                      // todo: user position
                       Flexible(
                           flex: 4,
                           child: Text(
-                            '120',
+                            "Position: " + position.toString(),
                             style: TextStyle(fontSize: 68, color: text_color),
                           ))
                     ]),
@@ -66,7 +127,13 @@ class _DefaultUserState extends State<DefaultUser> {
                         borderRadius: BorderRadius.circular(20)),
                     child: InkWell(
                         // todo: pop to main
-                        onTap: () => null,
+                        onTap: () => {
+                          leaveLine(widget.userID),
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const NumericKeyboardPage()),
+                                  (route) => false)},
                         child: const Align(
                           child: Text('Leave',
                               style:

@@ -142,11 +142,9 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                 MaterialPageRoute(
                     //todo: replace with real home page
                     builder: (context) => 
-                    DefaultUser(lineInfo: _futureJoinLineResponse)
-                    // InQueuePage(
-                    //       lineID: snapshot.data!.lineID,
-                    //       userID: snapshot.data!.userID,)
-                        ));
+                    DefaultUser(lineID: snapshot.data!.lineID,
+                      userID: snapshot.data!.userID,)
+                ));
           });
         } else if (snapshot.hasError) {
           return buildColumn();
