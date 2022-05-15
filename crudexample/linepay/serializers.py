@@ -51,3 +51,6 @@ class UserSerializer(serializers.Serializer):
 class EmailSerializer(serializers.Serializer):
     email = serializers.CharField()
     userID = serializers.CharField()
+
+class AcceptOfferSerializer(serializers.Serializer):
+    offerID = serializers.CharField()

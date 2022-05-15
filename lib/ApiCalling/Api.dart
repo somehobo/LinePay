@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'ResponseObjects.dart';
 
 const linePayURL = "http://10.0.2.2:8000/";
+//const linePayURL = "http://127.0.0.1:8000/";
 
 //Join Line
 Future<JoinLineResponse> joinLineAuthenticated(String lineCode, String userID) async {

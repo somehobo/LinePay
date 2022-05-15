@@ -304,3 +304,27 @@ def TogglePositionForSale(request):
         user.save()
         return Response(status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def AcceptOffer(request):
+    acceptOfferSerializer = AcceptOfferSerializer(data=request.data)
+    if(acceptOfferSerializer.is_valid()):
+        offer = Offer.objects.get(id=acceptOfferSerializer.data["offerID"])
+        #swap positions
+        positions = json.loads(offer.line.positions)
+        ind1 = positions.index(str(offer.madeBy.id))
+        ind2 = positions.index(str(offer.madeTo.id))
+        temp = positions[ind2]
+        positions[ind2] = positions[ind1]
+        positions[ind1] = temp
+        offer.line.positions = json.dumps(positions)
+        offer.line.save()
+        #get rid of all other offers for each user
+        Offer.objects.filter(madeBy=offer.madeBy).delete()
+        Offer.objects.filter(madeTo=offer.madeBy).delete()
+        Offer.objects.filter(madeTo=offer.madeTo).delete()
+        Offer.objects.filter(madeBy=offer.madeTo).delete()
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
