@@ -15,12 +15,12 @@ class OfferAPI(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
-class BusinessOwner(viewsets.ModelViewSet):
+class BusinessOwnerAPI(viewsets.ModelViewSet):
     #permission_classes = [permissions.IsAuthenticated]
     queryset = BusinessOwner.objects.all()
     serializer_class = BusinessOwnerSerializer
 
-class User(viewsets.ModelViewSet):
+class UserAPI(viewsets.ModelViewSet):
     #permission_classes = [permissions.IsAuthenticated]
     queryset = LinepayUser.objects.all()
     serializer_class = LinepayUserSerializer
@@ -36,12 +36,8 @@ class BusinessAPI(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
 
 def takeOutOfLine(line, userID):
-
-    print("before")
-    print(line.positions)
     if(line.positions != ""):
         positions = json.loads(line.positions)
-        print("after")
         positions.remove(int(userID))
         user = LinepayUser.objects.get(id=userID)
         user.line = None
@@ -49,9 +45,11 @@ def takeOutOfLine(line, userID):
         line.positions = json.dumps(positions)
         line.save()
 
+
 def getPosition(user):
     positions = json.loads(user.line.positions)
     return positions.index(str(user.id))
+
 
 @api_view(['POST'])
 def LeaveLine(request):
@@ -99,10 +97,13 @@ def CreateBusinessOwner(request):
         if(BusinessOwner.objects.filter(email=businessOwnerSerializer.data['email']).exists()):
             user = BusinessOwner.objects.get(email=businessOwnerSerializer.data['email'])
         else:
-            user = businessOwnerSerializer.save()
+            user = BusinessOwner(email=businessOwnerSerializer.data['email']).save()
         data = businessOwnerSerializer.data
         data.update({"userID": str(user.id)})
+        #this is because using the same response object on user side
+        data.update({'lineID': -1})
         return Response(data, status=status.HTTP_201_CREATED)
+    print(businessOwnerSerializer.errors)
     return Response(businessOwnerSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -195,23 +196,24 @@ def LoginLineUser(request):
         if(LinepayUser.objects.filter(email = email).exists()):
             user = LinepayUser.objects.get(email = email)
             user.line = oldUser.line
+            user.save()
         else:
             reuseTemp = True
             oldUser.email = email
             oldUser.isTemp = False
             oldUser.save()
             user = oldUser
-
         if(user.line != None and not reuseTemp):
             #replace temp user in line if they are in one
             line = user.line
             positions = json.loads(line.positions)
-            ind = positions.index(int(user.id))
-            positions.remove(int(user.id))
+            ind = positions.index(int(oldUser.id))
+            positions.remove(int(oldUser.id))
             positions.insert(ind, user.id)
             line.positions = json.dumps(positions)
             line.save()
-        data = {'userID': user.id}
+            oldUser.delete()
+        data = {'userID': str(user.id), 'lineID':user.line.id}
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(emailSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -254,7 +256,7 @@ def JoinLine(request):
                 data['userID'] = str(user.id)
                 data.update({"lineID": line.id})
                 print(data)
-                return Response(data, status=status.HTTP_201_CREATED)
+        return Response(data, status=status.HTTP_201_CREATED)
     return Response(joinLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

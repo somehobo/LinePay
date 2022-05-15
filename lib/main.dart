@@ -13,6 +13,8 @@ import 'package:linepay/authentication/firebase_options.dart';
 import 'ApiCalling/Api.dart';
 import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +48,29 @@ class NumericKeyboardPage extends StatefulWidget {
 class _NumericKeyboardState extends State<NumericKeyboardPage> {
   String text = '';
   Future<JoinLineResponse>? _futureJoinLineResponse;
+  var authenticatedUser = "";
+
+  addStringToSF(String userID) async {
+    print(userID);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('userID', userID);
+  }
+
+  isAuthenticated() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if(prefs.getBool('authenticated') != null) {
+      if(prefs.getBool('authenticated') == true) {
+         authenticatedUser = prefs.getString('userID')!;
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    isAuthenticated();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,10 +118,15 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     ),
                     style: const TextStyle(color: Colors.white),
                     onSubmitted: (value) {
-                      print('onSubmitted');
-                      setState(() {
-                        _futureJoinLineResponse = joinLine(value);
-                      });
+                      if(authenticatedUser != null) {
+                        setState(() {
+                          _futureJoinLineResponse = joinLineAuthenticated(value, authenticatedUser);
+                        });
+                      } else {
+                        setState(() {
+                          _futureJoinLineResponse = joinLine(value);
+                        });
+                      }
                     },
                   ),
                 ),
@@ -136,16 +166,31 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
       future: _futureJoinLineResponse,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          WidgetsBinding.instance?.addPostFrameCallback((_) {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
+          print(authenticatedUser);
+          if(authenticatedUser != "") {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
                     //todo: replace with real home page
-                    builder: (context) => 
-                    DefaultUser(lineID: snapshot.data!.lineID,
-                      userID: snapshot.data!.userID,)
-                ));
-          });
+                      builder: (context) =>
+                          InQueuePage(lineID: snapshot.data!.lineID,
+                            userID: snapshot.data!.userID,)
+                  ));
+            });
+          } else {
+            addStringToSF(snapshot.data!.userID);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    //todo: replace with real home page
+                      builder: (context) =>
+                          DefaultUser(lineID: snapshot.data!.lineID,
+                            userID: snapshot.data!.userID,)
+                  ));
+            });
+          }
         } else if (snapshot.hasError) {
           return buildColumn();
         }
