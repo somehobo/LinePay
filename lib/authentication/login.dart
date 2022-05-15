@@ -26,25 +26,26 @@ class _LoginPageState extends State<LoginPage> {
   bool _errorLogin = false;
   Future<userResponse>? _loginInfo;
 
+  businessNavigate(String userID) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('boID', userID);
+    return Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+            const HostPage()));
 
-  authenticateWithBackend(String userID, int lineID) async {
-    // if(widget.isBusiness) {
-    //   Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //           builder: (context) =>
-    //           const HostPage()));
-    // } else {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('userID', userID);
-      prefs.setBool('authenticated', true);
-      print("hello!");
-      return Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-              builder: (context) => InQueuePage(userID: userID, lineID: lineID)),
-          (route) => false);
-    // }
+  }
+
+  userNavigate(String userID, int lineID) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('userID', userID);
+    prefs.setBool('authenticated', true);
+    return Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => InQueuePage(userID: userID, lineID: lineID)),
+        (route) => false);
   }
 
   @override
@@ -129,10 +130,12 @@ class _LoginPageState extends State<LoginPage> {
                 FutureBuilder<userResponse>(
                   future: _loginInfo,
                   builder: (context, snapshot) {
-                    print(snapshot.hasData);
                     if (snapshot.hasData) {
                       if(snapshot.data?.userID != null){
-                        return authenticateWithBackend(snapshot.data!.userID, snapshot.data!.lineID);
+                        if(widget.isBusiness) {
+                          return businessNavigate(snapshot.data!.userID);
+                        }
+                        return userNavigate(snapshot.data!.userID, snapshot.data!.lineID);
                       }
                     }else {
                       print(snapshot.error);
@@ -145,8 +148,9 @@ class _LoginPageState extends State<LoginPage> {
                                   email: emailController.text,
                                   password: passwordController.text);
                               SharedPreferences prefs = await SharedPreferences.getInstance();
-                              if(prefs.getString('userID') != null) {
-                                print(prefs.getString('userID')!);
+                              if(widget.isBusiness) {
+                                _loginInfo = createBusinessOwner(emailController.text);
+                              } else if(prefs.getString('userID') != null) {
                                 _loginInfo = authenticateLineUser(
                                     emailController.text,
                                     prefs.getString('userID')!);

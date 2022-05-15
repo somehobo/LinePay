@@ -16,7 +16,6 @@ Future<JoinLineResponse> joinLineAuthenticated(String lineCode, String userID) a
     body: jsonEncode(<String, String>{'lineCode': lineCode, 'userID': userID}),
   );
 
-  print(response.statusCode);
   if (response.statusCode == 201) {
     var joinLineResponse = JoinLineResponse.fromJson(jsonDecode(response.body));
     return joinLineResponse;
@@ -89,7 +88,7 @@ Future<userResponse> authenticateLineUser(String email, String userID) async {
 
 //create business owner, on success returns the business owner's ID
 //logs in the owner if they ALREADY EXIST as well
-Future<CreateBusinessOwnerResponse> createBusinessOwner(String email, String userID) async {
+Future<userResponse> createBusinessOwner(String email) async {
   final response = await http.post(
     Uri.parse(linePayURL+'CreateBusinessOwner/'),
     headers: <String, String>{
@@ -100,7 +99,7 @@ Future<CreateBusinessOwnerResponse> createBusinessOwner(String email, String use
     }),
   );
   if(response.statusCode == 201) {
-    return CreateBusinessOwnerResponse.fromJson(jsonDecode(response.body));
+    return userResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
   }

@@ -20,8 +20,8 @@ from rest_framework import routers
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register('offerDetails', views.OfferAPI)
-router.register('businessOwnerDetails', views.BusinessOwner)
-router.register('userDetails', views.User)
+router.register('businessOwnerDetails', views.BusinessOwnerAPI)
+router.register('userDetails', views.UserAPI)
 router.register('lineDetails', views.LineAPI)
 router.register('businessDetails', views.BusinessAPI)
 

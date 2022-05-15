@@ -15,12 +15,12 @@ class OfferAPI(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
-class BusinessOwner(viewsets.ModelViewSet):
+class BusinessOwnerAPI(viewsets.ModelViewSet):
     #permission_classes = [permissions.IsAuthenticated]
     queryset = BusinessOwner.objects.all()
     serializer_class = BusinessOwnerSerializer
 
-class User(viewsets.ModelViewSet):
+class UserAPI(viewsets.ModelViewSet):
     #permission_classes = [permissions.IsAuthenticated]
     queryset = LinepayUser.objects.all()
     serializer_class = LinepayUserSerializer
@@ -36,12 +36,8 @@ class BusinessAPI(viewsets.ModelViewSet):
     serializer_class = BusinessSerializer
 
 def takeOutOfLine(line, userID):
-
-    print("before")
-    print(line.positions)
     if(line.positions != ""):
         positions = json.loads(line.positions)
-        print("after")
         positions.remove(int(userID))
         user = LinepayUser.objects.get(id=userID)
         user.line = None
@@ -49,9 +45,11 @@ def takeOutOfLine(line, userID):
         line.positions = json.dumps(positions)
         line.save()
 
+
 def getPosition(user):
     positions = json.loads(user.line.positions)
     return positions.index(str(user.id))
+
 
 @api_view(['POST'])
 def LeaveLine(request):
@@ -99,10 +97,13 @@ def CreateBusinessOwner(request):
         if(BusinessOwner.objects.filter(email=businessOwnerSerializer.data['email']).exists()):
             user = BusinessOwner.objects.get(email=businessOwnerSerializer.data['email'])
         else:
-            user = businessOwnerSerializer.save()
+            user = BusinessOwner(email=businessOwnerSerializer.data['email']).save()
         data = businessOwnerSerializer.data
         data.update({"userID": str(user.id)})
+        #this is because using the same response object on user side
+        data.update({'lineID': -1})
         return Response(data, status=status.HTTP_201_CREATED)
+    print(businessOwnerSerializer.errors)
     return Response(businessOwnerSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
