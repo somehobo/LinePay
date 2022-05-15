@@ -47,13 +47,16 @@ class LineDataResponse {
 
 class userResponse {
   final String userID;
+  final int lineID;
 
   const userResponse({
-    required this.userID
+    required this.userID,
+    required this.lineID
   });
   factory userResponse.fromJson(Map<String, dynamic> json) {
     return userResponse(
-        userID: json['userID']
+        userID: json['userID'],
+        lineID: json['lineID']
     );
   }
 }

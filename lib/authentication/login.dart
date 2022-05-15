@@ -6,6 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:linepay/authentication/signup.dart';
 import 'package:linepay/main.dart';
 
+import '../ApiCalling/Api.dart';
+import '../ApiCalling/ResponseObjects.dart';
+import '../user/InQueue.dart';
+
 // LOGIN PAGE CLASS
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key, required this.isBusiness}) : super(key: key);
@@ -20,6 +24,28 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool _errorLogin = false;
+  Future<userResponse>? _loginInfo;
+
+
+  authenticateWithBackend(String userID, int lineID) async {
+    // if(widget.isBusiness) {
+    //   Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(
+    //           builder: (context) =>
+    //           const HostPage()));
+    // } else {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('userID', userID);
+      prefs.setBool('authenticated', true);
+      print("hello!");
+      return Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => InQueuePage(userID: userID, lineID: lineID)),
+          (route) => false);
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,30 +126,44 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    TextButton(
-                        onPressed: () async {
-                          try {
-                            await FirebaseAuth.instance
-                                .signInWithEmailAndPassword(
-                                    email: emailController.text,
-                                    password: passwordController.text);
-                            setState(() {});
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                    //todo: InQueue page navigation info
-                                     const HostPage()));
-                          } on FirebaseAuthException {
-                            _errorLogin = true;
-                            setState(() {});
-                          }
-                        },
-                        child: const Text('Login',
-                            style:
-                                TextStyle(fontSize: 20, color: Colors.black)),
-                        style:
-                            TextButton.styleFrom(backgroundColor: Colors.white))
+                FutureBuilder<userResponse>(
+                  future: _loginInfo,
+                  builder: (context, snapshot) {
+                    print(snapshot.hasData);
+                    if (snapshot.hasData) {
+                      if(snapshot.data?.userID != null){
+                        return authenticateWithBackend(snapshot.data!.userID, snapshot.data!.lineID);
+                      }
+                    }else {
+                      print(snapshot.error);
+                    }
+                    return TextButton(
+                          onPressed: () async {
+                            try {
+                              await FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                  email: emailController.text,
+                                  password: passwordController.text);
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              if(prefs.getString('userID') != null) {
+                                print(prefs.getString('userID')!);
+                                _loginInfo = authenticateLineUser(
+                                    emailController.text,
+                                    prefs.getString('userID')!);
+                              }
+                              setState(() {});
+                            } on FirebaseAuthException {
+                              _errorLogin = true;
+                              setState(() {});
+                            }
+                          },
+                          child: const Text('Login',
+                              style:
+                              TextStyle(fontSize: 20, color: Colors.black)),
+                          style:
+                          TextButton.styleFrom(backgroundColor: Colors.white));
+                  },
+                )
                   ],
                 ),
               ),

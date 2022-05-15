@@ -195,23 +195,24 @@ def LoginLineUser(request):
         if(LinepayUser.objects.filter(email = email).exists()):
             user = LinepayUser.objects.get(email = email)
             user.line = oldUser.line
+            user.save()
         else:
             reuseTemp = True
             oldUser.email = email
             oldUser.isTemp = False
             oldUser.save()
             user = oldUser
-
         if(user.line != None and not reuseTemp):
             #replace temp user in line if they are in one
             line = user.line
             positions = json.loads(line.positions)
-            ind = positions.index(int(user.id))
-            positions.remove(int(user.id))
+            ind = positions.index(int(oldUser.id))
+            positions.remove(int(oldUser.id))
             positions.insert(ind, user.id)
             line.positions = json.dumps(positions)
             line.save()
-        data = {'userID': user.id}
+            oldUser.delete()
+        data = {'userID': str(user.id), 'lineID':user.line.id}
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(emailSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -254,7 +255,7 @@ def JoinLine(request):
                 data['userID'] = str(user.id)
                 data.update({"lineID": line.id})
                 print(data)
-                return Response(data, status=status.HTTP_201_CREATED)
+        return Response(data, status=status.HTTP_201_CREATED)
     return Response(joinLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
