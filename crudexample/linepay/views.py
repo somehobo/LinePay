@@ -35,8 +35,8 @@ class BusinessAPI(viewsets.ModelViewSet):
     queryset = Business.objects.all()
     serializer_class = BusinessSerializer
 
-def takeOutOfLine(lineID, userID):
-    line = lineID
+def takeOutOfLine(line, userID):
+
     print("before")
     print(line.positions)
     if(line.positions != ""):
@@ -48,6 +48,19 @@ def takeOutOfLine(lineID, userID):
         user.save()
         line.positions = json.dumps(positions)
         line.save()
+
+def getPosition(user):
+    positions = json.loads(user.line.positions)
+    return positions.index(str(user.id))
+
+@api_view(['POST'])
+def LeaveLine(request):
+    userSerializer = UserSerializer(data = request.data)
+    if(userSerializer.is_valid()):
+        user = LinepayUser.objects.get(id=userSerializer.data['userID'])
+        takeOutOfLine(line=user.line, userID=user.id)
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # notes: businessUsrId = 4, businessId = 5, line code= 4JSX, userID = 9, position=1
@@ -82,9 +95,13 @@ def LinePayCreateUser(request):
 def CreateBusinessOwner(request):
     businessOwnerSerializer = BusinessOwnerSerializer(data=request.data)
     if(businessOwnerSerializer.is_valid()):
-        user = businessOwnerSerializer.save()
+        user = None
+        if(BusinessOwner.objects.filter(email=businessOwnerSerializer.data['email']).exists()):
+            user = BusinessOwner.objects.get(email=businessOwnerSerializer.data['email'])
+        else:
+            user = businessOwnerSerializer.save()
         data = businessOwnerSerializer.data
-        data.update({"userID": user.id})
+        data.update({"userID": str(user.id)})
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(businessOwnerSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -125,7 +142,7 @@ def GetOffers(request):
         offers = Offer.objects.filter(line = user.line, madeTo = user.id)
         results = []
         for offer in offers:
-            row = [offer.amount,offer.madeBy.id,offer.madeTo.id]
+            row = [offer.amount,getPosition(offer.madeBy),offer.madeTo.id]
             results.append(row)
         results.sort(key=lambda x:x[0])
         print(results)
@@ -159,8 +176,8 @@ def DecrementLine(request):
 def CreateLine(request):
     lineSerializer = LineSerializer(data=request.data)
     if(lineSerializer.is_valid()):
-        lineSerializer.save()
-        return Response(lineSerializer.data, status=status.HTTP_201_CREATED)
+        line = lineSerializer.save()
+        return Response({'lineID':str(line.id)}, status=status.HTTP_201_CREATED)
     return Response(lineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -287,3 +304,27 @@ def TogglePositionForSale(request):
         user.save()
         return Response(status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def AcceptOffer(request):
+    acceptOfferSerializer = AcceptOfferSerializer(data=request.data)
+    if(acceptOfferSerializer.is_valid()):
+        offer = Offer.objects.get(id=acceptOfferSerializer.data["offerID"])
+        #swap positions
+        positions = json.loads(offer.line.positions)
+        ind1 = positions.index(str(offer.madeBy.id))
+        ind2 = positions.index(str(offer.madeTo.id))
+        temp = positions[ind2]
+        positions[ind2] = positions[ind1]
+        positions[ind1] = temp
+        offer.line.positions = json.dumps(positions)
+        offer.line.save()
+        #get rid of all other offers for each user
+        Offer.objects.filter(madeBy=offer.madeBy).delete()
+        Offer.objects.filter(madeTo=offer.madeBy).delete()
+        Offer.objects.filter(madeTo=offer.madeTo).delete()
+        Offer.objects.filter(madeBy=offer.madeTo).delete()
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+

@@ -11,6 +11,7 @@ import 'package:linepay/authentication/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:linepay/authentication/firebase_options.dart';
 import 'ApiCalling/Api.dart';
+import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
 
 Future<void> main() async {
@@ -94,7 +95,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     onSubmitted: (value) {
                       print('onSubmitted');
                       setState(() {
-                        _futureJoinLineResponse = joinLine(value, "1");
+                        _futureJoinLineResponse = joinLine(value);
                       });
                     },
                   ),
@@ -107,7 +108,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
             child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.only(left: 10, right: 10),
                   child: InkWell(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -141,11 +142,9 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                 MaterialPageRoute(
                     //todo: replace with real home page
                     builder: (context) => 
-                    DefaultUser(lineInfo: _futureJoinLineResponse)
-                    // InQueuePage(
-                    //       lineID: snapshot.data!.lineID,
-                    //       userID: snapshot.data!.userID,)
-                        ));
+                    DefaultUser(lineID: snapshot.data!.lineID,
+                      userID: snapshot.data!.userID,)
+                ));
           });
         } else if (snapshot.hasError) {
           return buildColumn();
