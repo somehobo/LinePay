@@ -108,3 +108,17 @@ class GetOffersResponse {
     );
   }
 }
+
+class AcceptOfferResponse {
+
+  final bool accepted;
+
+  const AcceptOfferResponse(
+      {required this.accepted});
+
+  factory AcceptOfferResponse.fromJson(Map<String, dynamic> json) {
+    return AcceptOfferResponse(
+        accepted: json['accepted']
+    );
+  }
+}
