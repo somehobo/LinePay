@@ -46,6 +46,7 @@ class _InQueuePageState extends State<InQueuePage> {
   var _clockTimer;
   //will depend of whether or not line is listed in backend
   var listedPos = false;
+  var nextInLine = false;
   var lineSales = [
     Tair(0, 0, 0),
   ];
@@ -105,6 +106,13 @@ class _InQueuePageState extends State<InQueuePage> {
           lineCode = newLineCode;
         });
       }
+      setState(() {
+        nextInLine = _lineDataResponse.nextInLine;
+        if (nextInLine) {
+          _clockTimer.cancel();
+          nextInLineBox(context);
+        }
+      });
     });
   }
 
@@ -119,13 +127,13 @@ class _InQueuePageState extends State<InQueuePage> {
                 style: TextStyle(color: text_color),
               ),
               onPressed: () => {
-                leaveLine(widget.userID),
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NumericKeyboardPage()),
-                    (route) => false)
-              }),
+                    leaveLine(widget.userID),
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NumericKeyboardPage()),
+                        (route) => false)
+                  }),
           title: Text(
             'In Line for: ' + lineName,
             style: const TextStyle(
@@ -272,7 +280,7 @@ class _InQueuePageState extends State<InQueuePage> {
           child: InkWell(
             child: Align(
               child: Text(
-                "       Line Position: "+ linePos.a.toString(),
+                "       Line Position: " + linePos.a.toString(),
                 style: const TextStyle(fontSize: 20),
               ),
               alignment: Alignment.centerLeft,
@@ -282,7 +290,7 @@ class _InQueuePageState extends State<InQueuePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        PayPage(linePos: linePos.a.toString())),
+                        PayPage(linePos: linePos.a.toString(), lineID: widget.lineID, userID: widget.userID,)),
               );
             },
           ),

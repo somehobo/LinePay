@@ -27,7 +27,7 @@ class BusinessSerializer(serializers.ModelSerializer):
 class BusinessOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessOwner
-        fields = ["email", 'business']
+        fields = ["email"]
 
 class BusinessOwnerIDSerializer(serializers.Serializer):
     boID = serializers.CharField()
