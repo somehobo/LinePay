@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:linepay/preferences/LinePayColors.dart';
-import 'package:linepay/business/Host.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 import 'package:linepay/authentication/signup.dart';
-import 'package:linepay/main.dart';
-
+import 'package:linepay/business/Host.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../ApiCalling/Api.dart';
 import '../ApiCalling/ResponseObjects.dart';
 import '../user/InQueue.dart';

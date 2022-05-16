@@ -45,6 +45,7 @@ dependencies:
   http: ^0.13.4
   flutter_bloc: ^8.0.1
   equatable: ^2.0.3
+  mask_text_input_formatter: ^2.3.0
 
 dev_dependencies:
   flutter_test:

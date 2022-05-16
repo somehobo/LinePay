@@ -5,6 +5,7 @@ class JoinLineResponse {
 
   const JoinLineResponse(
       {required this.lineCode, required this.lineID, required this.userID});
+
   factory JoinLineResponse.fromJson(Map<String, dynamic> json) {
     return JoinLineResponse(
         lineCode: json['lineCode'],
@@ -12,6 +13,7 @@ class JoinLineResponse {
         userID: json['userID']);
   }
 }
+
 
 class LineDataResponse {
   final int position;
@@ -30,6 +32,7 @@ class LineDataResponse {
       required this.lineName,
       required this.positionForSale,
       required this.lineCode});
+
   factory LineDataResponse.fromJson(Map<String, dynamic> json) {
     return LineDataResponse(
         position: json['position'],
@@ -47,6 +50,7 @@ class userResponse {
   final int lineID;
 
   const userResponse({required this.userID, required this.lineID});
+
   factory userResponse.fromJson(Map<String, dynamic> json) {
     return userResponse(userID: json['userID'], lineID: json['lineID']);
   }
@@ -61,7 +65,7 @@ class BusinessOwnerLines {
       Map<dynamic, Map<dynamic, dynamic>> json) {
     print(json);
     return BusinessOwnerLines(
-      lines: json['lines'], 
+      lines: json['lines'],
       lineIDs: json['lineIDs']);
   }
 }
@@ -76,6 +80,7 @@ class CreateBusinessResponse {
 }
 
 class CreateLineResponse {
+
   final String lineID;
 
   const CreateLineResponse({required this.lineID});
@@ -87,11 +92,19 @@ class CreateLineResponse {
 class GetOffersResponse {
   //offers[0] is offer amount
   //offers[1] is current position of the person that offered
-  //offers[2] is the made to id, useless
-  final List<List<int>> offers; //businessID
+  //offers[2] is the made from id
+  final List<int> amounts; //businessID
+  final List<int> positions; //businessID
+  final List<int> offerIDs; //businessID
 
-  const GetOffersResponse({required this.offers});
+  const GetOffersResponse(
+      {required this.amounts, required this.positions, required this.offerIDs});
+
   factory GetOffersResponse.fromJson(Map<String, dynamic> json) {
-    return GetOffersResponse(offers: json['offers']);
+    return GetOffersResponse(
+      amounts: json['amounts'].cast<int>(),
+      positions: json['positions'].cast<int>(),
+      offerIDs: json['offerIDs'].cast<int>(),
+    );
   }
 }

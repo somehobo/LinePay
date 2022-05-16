@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:linepay/ApiCalling/Api.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:linepay/authentication/signup.dart';
-import 'package:linepay/main.dart';
-import 'package:camera/camera.dart';
+
+import '../preferences/LinePayColors.dart';
 
 
 // LOGIN PAGE CLASS
@@ -18,29 +18,53 @@ class PayPage extends StatefulWidget {
 
 // LOGIN PAGE SCAFFOLD
 class _PayPageState extends State<PayPage> {
-  var buyNow = 10;
+  String userID = "";
+
+  setUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userID = prefs.getString('userID')!;
+  }
+
+  @override
+  void initState() {
+    setUserID();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.linePos),
+        backgroundColor: backGround,
+        title: Text("Make offer to position " +widget.linePos,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: text_color),
+      ),
+          centerTitle:true
       ),
       body: Column(
         children: [
-          Container(
-            margin: EdgeInsets.only(top: 10),
-            height: 150,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.circular(20.0),
-              border: Border.all(width: 0.0, color: Colors.black),
+          Padding(padding: EdgeInsets.only(top: 20)),
+          TextField(
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              hintText: 'Amount',
+              hintStyle: const TextStyle(color: Colors.white),
+              fillColor: Theme.of(context).primaryColor,
+              filled: true,
             ),
-            child: Center(
-              child: Text("Buy :", style: TextStyle(fontSize: 20),),
-            ),
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: Colors.white),
+            onSubmitted: (value) async {
+              print(widget.linePos);
+              var _createdOfferResponse = await CreateOffer(userID, widget.linePos, value);
+              if(_createdOfferResponse.accepted){
+                Navigator.pop(context);
+              }
+            },
           ),
         ],
       ),

@@ -1,19 +1,17 @@
-import 'dart:developer';
-import 'dart:io';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:linepay/authentication/firebase_options.dart';
+import 'package:linepay/authentication/login.dart';
+import 'package:linepay/preferences/LinePayColors.dart';
 import 'package:linepay/user/DefaultUser.dart';
 import 'package:linepay/user/InQueue.dart';
-import 'package:linepay/preferences/LinePayColors.dart';
-import 'package:linepay/authentication/login.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:linepay/authentication/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'ApiCalling/Api.dart';
 import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +62,12 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
     }
   }
 
+  clearSharedPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    authenticatedUser = "";
+  }
+
   @override
   void initState() {
     isAuthenticated();
@@ -93,6 +97,8 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // TextButton(onPressed: () {clearSharedPref(); isAuthenticated();}, child: Text("Logout")),
+
                 const Flexible(
                   flex: 3,
                   child: Text(
@@ -117,7 +123,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     ),
                     style: const TextStyle(color: Colors.white),
                     onSubmitted: (value) {
-                      if (authenticatedUser != null) {
+                      if(authenticatedUser != "") {
                         setState(() {
                           _futureJoinLineResponse =
                               joinLineAuthenticated(value, authenticatedUser);
@@ -169,7 +175,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
         if (snapshot.hasData) {
           print(authenticatedUser);
           if (authenticatedUser != "") {
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -181,7 +187,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
             });
           } else {
             addStringToSF(snapshot.data!.userID);
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

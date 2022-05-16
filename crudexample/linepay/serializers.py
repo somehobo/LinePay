@@ -27,7 +27,7 @@ class BusinessSerializer(serializers.ModelSerializer):
 class BusinessOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessOwner
-        fields = ["email"]
+        fields = ["email", 'business']
 
 class BusinessOwnerIDSerializer(serializers.Serializer):
     boID = serializers.CharField()
@@ -38,7 +38,7 @@ class DecrementLineSerializer(serializers.Serializer):
 
 class JoinLineSerializer(serializers.Serializer):
     lineCode = serializers.CharField()
-    userID = serializers.CharField(required=False,default='-1')
+    userID = serializers.CharField()
 
 class CreateLineSerializer(serializers.Serializer):
     businessOwner = serializers.CharField()
@@ -57,3 +57,8 @@ class EmailSerializer(serializers.Serializer):
 
 class AcceptOfferSerializer(serializers.Serializer):
     offerID = serializers.CharField()
+
+class CreateOfferSerializer(serializers.Serializer):
+    userID = serializers.CharField()
+    positions = serializers.CharField()
+    amount = serializers.IntegerField()

@@ -1,7 +1,6 @@
-from django.shortcuts import render, redirect
 from linepay.models import *
 from .serializers import *
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import json
@@ -48,7 +47,8 @@ def takeOutOfLine(line, userID):
 
 def getPosition(user):
     positions = json.loads(user.line.positions)
-    return positions.index(str(user.id))
+    print(positions)
+    return positions.index(user.id) +1
 
 
 @api_view(['POST'])
@@ -57,6 +57,9 @@ def LeaveLine(request):
     if(userSerializer.is_valid()):
         user = LinepayUser.objects.get(id=userSerializer.data['userID'])
         takeOutOfLine(line=user.line, userID=user.id)
+        #delete offers made to and from user before they leave
+        Offer.objects.filter(madeBy=user).delete()
+        Offer.objects.filter(madeTo=user).delete()
         return Response(status=status.HTTP_201_CREATED)
     return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,13 +161,15 @@ def GetOffers(request):
     if(userSerializer.is_valid()):
         user = LinepayUser.objects.get(id=userSerializer.data['userID'])
         offers = Offer.objects.filter(line = user.line, madeTo = user.id)
-        results = []
+        results = [[],[],[]]
         for offer in offers:
-            row = [offer.amount,getPosition(offer.madeBy),offer.madeTo.id]
-            results.append(row)
-        results.sort(key=lambda x:x[0])
+            results[0].append(offer.amount)
+            results[1].append(getPosition(offer.madeBy))
+            results[2].append(offer.id)
+
+        # results.sort(key=lambda x:x[0])
         print(results)
-        data = {'offers' : results}
+        data = {'amounts' : results[0], 'positions':results[1], 'offerIDs': results[2]}
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -276,7 +281,8 @@ def JoinLine(request):
                 data['userID'] = str(user.id)
                 data.update({"lineID": line.id})
                 print(data)
-        return Response(data, status=status.HTTP_201_CREATED)
+                return Response(data, status=status.HTTP_201_CREATED)
+    print(joinLineSerializer.errors)
     return Response(joinLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -299,8 +305,9 @@ def GetLineData(request):
         positionsForSaleSend = []
         if (positionsForSale):
             for position in positionsForSale:
-                if (position != user):
-                    positionsForSaleSend.append(list.index(int(position.id)))
+                ind = int(position.id)
+                if (position != user and ind < positionSend):
+                    positionsForSaleSend.append(ind)
 
         lineNameSend = line.name
         data = getLineSerializer.data
@@ -335,8 +342,8 @@ def AcceptOffer(request):
         offer = Offer.objects.get(id=acceptOfferSerializer.data["offerID"])
         #swap positions
         positions = json.loads(offer.line.positions)
-        ind1 = positions.index(str(offer.madeBy.id))
-        ind2 = positions.index(str(offer.madeTo.id))
+        ind1 = positions.index(offer.madeBy.id)
+        ind2 = positions.index(offer.madeTo.id)
         temp = positions[ind2]
         positions[ind2] = positions[ind1]
         positions[ind1] = temp
@@ -347,6 +354,22 @@ def AcceptOffer(request):
         Offer.objects.filter(madeTo=offer.madeBy).delete()
         Offer.objects.filter(madeTo=offer.madeTo).delete()
         Offer.objects.filter(madeBy=offer.madeTo).delete()
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(data={'accepted':True},status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def CreateOffer(request):
+    createOfferSerializer = CreateOfferSerializer(data = request.data)
+    if(createOfferSerializer.is_valid()):
+        userID = createOfferSerializer.data["userID"]
+        user = LinepayUser.objects.get(id=userID)
+        targetUserID = json.loads(user.line.positions)[int(createOfferSerializer.data["positions"])]
+        targetUser = LinepayUser.objects.get(id=targetUserID)
+        Offer(madeBy=user,
+              madeTo=targetUser,
+              amount=createOfferSerializer.data["amount"],
+              line=user.line).save()
+        return Response(data={'accepted':True},status=status.HTTP_201_CREATED)
+    print(createOfferSerializer.errors)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 

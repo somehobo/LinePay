@@ -3,6 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:linepay/ApiCalling/Api.dart';
 import 'package:linepay/ApiCalling/ResponseObjects.dart';
 import 'package:linepay/preferences/LinePayColors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
+
+import 'InQueue.dart';
+
+class Qair<T1, T2, T3, T4> {
+  final T1 position;
+  final T2 price;
+  final T3 offerID;
+  final T3 index;
+
+  Qair(this.position, this.price, this.offerID, this.index);
+}
 
 // OFFERS PAGE CLASS
 class OffersPage extends StatefulWidget {
@@ -16,16 +29,37 @@ class OffersPage extends StatefulWidget {
 }
 
 class _OffersPageState extends State<OffersPage> {
-  late Stream<LineDataResponse> _lineData;
+  var offers = [];
   var _clockTimer;
+
+  linePattern(int index) {
+    if (index.isEven) {
+      return Theme.of(context).primaryColor;
+    }
+    return Theme.of(context).colorScheme.secondary;
+  }
+
   @override
-  void initState() {
+  initState() {
     super.initState();
-    _lineData =
-        Stream.fromFuture(getLineData(widget.lineID.toString(), widget.userID));
     _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      _lineData = Stream.fromFuture(
-          getLineData(widget.lineID.toString(), widget.userID));
+      GetOffersResponse _getOffersResponse = await getOffers(widget.userID);
+      var newOffersUnparsed = _getOffersResponse.amounts;
+      var newOffersUnparsedLength = newOffersUnparsed.length;
+      var newOffers = [];
+      for (var i = 0; i < newOffersUnparsedLength; i++) {
+        newOffers.add(Qair(
+            _getOffersResponse.positions[i],
+            _getOffersResponse.amounts[i],
+            _getOffersResponse.offerIDs[i],
+            i + 1));
+      }
+      Function eq = const ListEquality().equals;
+      if (!eq(newOffers, offers)) {
+        setState(() {
+          offers = newOffers;
+        });
+      }
     });
   }
 
@@ -42,7 +76,7 @@ class _OffersPageState extends State<OffersPage> {
           leading: const BackButton(color: text_color),
           backgroundColor: backGround,
           title: const Text(
-            'Offers Page',
+            'Offers to Me',
             style: TextStyle(
               fontFamily: 'Open Sans',
               fontSize: 20,
@@ -51,76 +85,40 @@ class _OffersPageState extends State<OffersPage> {
             textAlign: TextAlign.center,
           ),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 25,
-              ),
-              Center(
-                  child: Text(
-                'Line Position: 10',
-                style: const TextStyle(
-                  fontFamily: 'Open Sans',
-                  fontSize: 34,
-                  color: text_color,
-                ),
-                textAlign: TextAlign.center,
-              )),
-              const SizedBox(height: 20),
-              StreamBuilder(
-                stream: _lineData,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasError) {
-                    return const Text('Uh-oh, Something went wrong');
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  if (snapshot.hasData) {
-                    LineDataResponse offerData = snapshot.data;
-                    return ListView.separated(
-                      itemCount: offerData.offersToMe,
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const Divider(),
-                      itemBuilder: (BuildContext context, int index) {
-                        return OfferCard();
-                      },
-                    );
-                  }
-                  return const Text('No offers to show',
-                      style: TextStyle(
-                        fontFamily: 'Open Sans',
-                        fontSize: 20,
-                        color: text_color,
-                      ));
-                },
-              ),
-            ],
-          ),
-        ));
+        body: ListView(
+            children:
+                offers.map<Widget>((offer) => offerListing(offer)).toList()));
   }
 
-  Widget OfferCard() {
+  offerListing(Qair offer) {
     return Container(
-        padding: const EdgeInsets.only(top: 10, left: 7, right: 7),
+        padding: EdgeInsets.only(top: 10, left: 7, right: 7),
         child: Container(
-            height: 60,
-            padding: const EdgeInsets.only(top: 5),
+            height: 45,
+            padding: EdgeInsets.only(top: 5),
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.circular(20),
+              color: linePattern(offer.index),
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            child: InkWell(
-                child: Align(
-              child: Text(
-                'dummy offer',
-                style: const TextStyle(fontSize: 20),
-              ),
-              alignment: Alignment.centerLeft,
-            ))));
+            child: Row(
+              children: [
+                Text(
+                  "     Line Position: " +
+                      offer.position.toString() +
+                      "   Price: " +
+                      offer.price.toString(),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                Padding(padding: EdgeInsets.only(left: 15)),
+                TextButton(
+                    onPressed: () async {
+                      var _offerResponse = await acceptOffer(offer.offerID.toString());
+                      if (_offerResponse.accepted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text("Accept"))
+              ],
+            )));
   }
 }
