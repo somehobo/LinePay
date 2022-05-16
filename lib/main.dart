@@ -15,7 +15,6 @@ import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -58,9 +57,9 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
 
   isAuthenticated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(prefs.getBool('authenticated') != null) {
-      if(prefs.getBool('authenticated') == true) {
-         authenticatedUser = prefs.getString('userID')!;
+    if (prefs.getBool('authenticated') != null) {
+      if (prefs.getBool('authenticated') == true) {
+        authenticatedUser = prefs.getString('userID')!;
       }
     }
   }
@@ -118,9 +117,10 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     ),
                     style: const TextStyle(color: Colors.white),
                     onSubmitted: (value) {
-                      if(authenticatedUser != null) {
+                      if (authenticatedUser != null) {
                         setState(() {
-                          _futureJoinLineResponse = joinLineAuthenticated(value, authenticatedUser);
+                          _futureJoinLineResponse =
+                              joinLineAuthenticated(value, authenticatedUser);
                         });
                       } else {
                         setState(() {
@@ -154,7 +154,8 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginPage(isBusiness: true)))),
+                              builder: (context) =>
+                                  const LoginPage(isBusiness: true)))),
                 )),
           ),
           const SizedBox(height: 50)
@@ -167,28 +168,28 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           print(authenticatedUser);
-          if(authenticatedUser != "") {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (authenticatedUser != "") {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    //todo: replace with real home page
-                      builder: (context) =>
-                          InQueuePage(lineID: snapshot.data!.lineID,
-                            userID: snapshot.data!.userID,)
-                  ));
+                      //todo: replace with real home page
+                      builder: (context) => InQueuePage(
+                            lineID: snapshot.data!.lineID,
+                            userID: snapshot.data!.userID,
+                          )));
             });
           } else {
             addStringToSF(snapshot.data!.userID);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    //todo: replace with real home page
-                      builder: (context) =>
-                          DefaultUser(lineID: snapshot.data!.lineID,
-                            userID: snapshot.data!.userID,)
-                  ));
+                      //todo: replace with real home page
+                      builder: (context) => DefaultUser(
+                            lineID: snapshot.data!.lineID,
+                            userID: snapshot.data!.userID,
+                          )));
             });
           }
         } else if (snapshot.hasError) {

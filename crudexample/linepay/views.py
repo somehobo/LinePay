@@ -107,13 +107,30 @@ def CreateBusinessOwner(request):
     return Response(businessOwnerSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['GET'])
 def LinePayGetUser(request, userName):
         users = LinepayUser.objects.filter(name=userName)
         userSerializer = LinepayUserSerializer(users, many=True)
         return Response(userSerializer.data)
 
+@api_view(['POST'])
+def getBusinessOwnerLines(request):
+    boIDSerializer = BusinessOwnerIDSerializer(data=request.data)
+    if boIDSerializer.is_valid():
+        god = {}
+        data = {}
+        lineIDs = {}
+        if (BusinessOwner.objects.filter(id=boIDSerializer.data['boID']).exists):
+            lines = Line.objects.filter(businessOwner=boIDSerializer.data['boID'])
+            for line in lines:
+                data[line.name] = len(line.positions)
+                lineIDs[line.name] = line.id
+            god.update({"lines": data})
+            god.update({"lineIDs": lineIDs})
+        print(god)     
+
+        return Response(god, status=status.HTTP_201_CREATED)
+    return Response(boIDSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # create business json format
 # {
@@ -175,11 +192,14 @@ def DecrementLine(request):
 
 @api_view(["POST"])
 def CreateLine(request):
-    lineSerializer = LineSerializer(data=request.data)
-    if(lineSerializer.is_valid()):
-        line = lineSerializer.save()
-        return Response({'lineID':str(line.id)}, status=status.HTTP_201_CREATED)
-    return Response(lineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    createLineSerializer = CreateLineSerializer(data=request.data)
+    if(createLineSerializer.is_valid()):
+        if (not Line.objects.filter(name=createLineSerializer.data['name']).exists()):
+            Line(name=createLineSerializer.data['name'], businessOwner = BusinessOwner.objects.get(id=createLineSerializer.data['businessOwner'])).save()
+
+        #return Response({'lineID':str(line.id)}, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(createLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # {"email":"test@mail.com", "userID":2}

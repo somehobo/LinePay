@@ -1,26 +1,49 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:linepay/ApiCalling/Api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:linepay/preferences/LinePayColors.dart';
 
 // LINE DETAILS CLASS
 class LineDetails extends StatefulWidget {
-  const LineDetails({Key? key}) : super(key: key);
+  const LineDetails(
+      {Key? key,
+      required this.lineName,
+      required this.persons,
+      required this.lineID})
+      : super(key: key);
+  final String lineName;
+  final int persons;
+  final int lineID;
 
   @override
   State<LineDetails> createState() => _LineDetailsState();
 }
 
 class _LineDetailsState extends State<LineDetails> {
+  late final SharedPreferences _prefs;
+  late final String _boID;
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedPrefs();
+  }
+
+  Future<void> getSharedPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    _boID = _prefs.getString('boID').toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(color: text_color),
         backgroundColor: backGround,
-        title: const Text(
-          'linename',
-          style: TextStyle(
+        title: Text(
+          widget.lineName,
+          style: const TextStyle(
             fontFamily: 'Open Sans',
             fontSize: 24,
             color: text_color,
@@ -41,14 +64,12 @@ class _LineDetailsState extends State<LineDetails> {
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 24)),
                 const SizedBox(height: 30),
-                // todo: GET NUMBER OF PERSONS IN LINE
-                Text('120',
+                Text(widget.persons.toString(),
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 70)),
+                    style: const TextStyle(fontSize: 70)),
               ],
             ),
           ),
-          // todo: streambuilder for line count goes here
           Flexible(
               flex: 1,
               child: Align(
