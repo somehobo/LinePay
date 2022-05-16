@@ -54,3 +54,8 @@ class EmailSerializer(serializers.Serializer):
 
 class AcceptOfferSerializer(serializers.Serializer):
     offerID = serializers.CharField()
+
+class CreateOfferSerializer(serializers.Serializer):
+    userID = serializers.CharField()
+    positions = serializers.CharField()
+    amount = serializers.IntegerField()

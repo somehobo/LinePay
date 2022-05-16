@@ -1,7 +1,6 @@
-from django.shortcuts import render, redirect
 from linepay.models import *
 from .serializers import *
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import json
@@ -58,6 +57,9 @@ def LeaveLine(request):
     if(userSerializer.is_valid()):
         user = LinepayUser.objects.get(id=userSerializer.data['userID'])
         takeOutOfLine(line=user.line, userID=user.id)
+        #delete offers made to and from user before they leave
+        Offer.objects.filter(madeBy=user).delete()
+        Offer.objects.filter(madeTo=user).delete()
         return Response(status=status.HTTP_201_CREATED)
     return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -333,5 +335,21 @@ def AcceptOffer(request):
         Offer.objects.filter(madeTo=offer.madeTo).delete()
         Offer.objects.filter(madeBy=offer.madeTo).delete()
         return Response(data={'accepted':True},status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def CreateOffer(request):
+    createOfferSerializer = CreateOfferSerializer(data = request.data)
+    if(createOfferSerializer.is_valid()):
+        userID = createOfferSerializer.data["userID"]
+        user = LinepayUser.objects.get(id=userID)
+        targetUserID = json.loads(user.line.positions)[int(createOfferSerializer.data["positions"])]
+        targetUser = LinepayUser.objects.get(id=targetUserID)
+        Offer(madeBy=user,
+              madeTo=targetUser,
+              amount=createOfferSerializer.data["amount"],
+              line=user.line).save()
+        return Response(data={'accepted':True},status=status.HTTP_201_CREATED)
+    print(createOfferSerializer.errors)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
