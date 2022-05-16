@@ -29,6 +29,9 @@ class BusinessOwnerSerializer(serializers.ModelSerializer):
         model = BusinessOwner
         fields = ["email", 'business']
 
+class BusinessOwnerIDSerializer(serializers.Serializer):
+    boID = serializers.CharField()
+
 class DecrementLineSerializer(serializers.Serializer):
     lineID = serializers.IntegerField()
     position = serializers.IntegerField()
@@ -38,7 +41,7 @@ class JoinLineSerializer(serializers.Serializer):
     userID = serializers.CharField()
 
 class CreateLineSerializer(serializers.Serializer):
-    businessID = serializers.IntegerField()
+    businessOwner = serializers.CharField()
     name = serializers.CharField()
 
 class GetLineSerializer(serializers.Serializer):
