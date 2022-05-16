@@ -308,7 +308,7 @@ def GetLineData(request):
         try:
             positionSend = list.index(int(user.id)) + 1
         except ValueError:
-            positionSent = 0
+            positionSend = 0
         positionsForSale = LinepayUser.objects.filter(line=lineID,positionForSale=True)
         positionsForSaleSend = []
         if (positionsForSale):
