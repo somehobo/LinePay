@@ -175,7 +175,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
         if (snapshot.hasData) {
           print(authenticatedUser);
           if (authenticatedUser != "") {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -187,7 +187,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
             });
           } else {
             addStringToSF(snapshot.data!.userID);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

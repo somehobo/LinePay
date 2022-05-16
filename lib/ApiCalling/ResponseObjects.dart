@@ -14,7 +14,6 @@ class JoinLineResponse {
   }
 }
 
-
 class LineDataResponse {
   final int position;
   final int offersToMe;
@@ -23,6 +22,7 @@ class LineDataResponse {
   final String lineName;
   final bool positionForSale;
   final String lineCode;
+  final bool nextInLine;
 
   const LineDataResponse(
       {required this.position,
@@ -31,7 +31,8 @@ class LineDataResponse {
       required this.positionsForSale,
       required this.lineName,
       required this.positionForSale,
-      required this.lineCode});
+      required this.lineCode,
+      required this.nextInLine});
 
   factory LineDataResponse.fromJson(Map<String, dynamic> json) {
     return LineDataResponse(
@@ -41,7 +42,8 @@ class LineDataResponse {
         positionsForSale: json['positionsForSale'].cast<int>(),
         lineName: json['lineName'],
         positionForSale: json['positionForSale'],
-        lineCode: json['lineCode']);
+        lineCode: json['lineCode'],
+        nextInLine: json['nextInLine']);
   }
 }
 
@@ -63,10 +65,8 @@ class BusinessOwnerLines {
   const BusinessOwnerLines({required this.lines, required this.lineIDs});
   factory BusinessOwnerLines.fromJson(
       Map<dynamic, Map<dynamic, dynamic>> json) {
-    print(json);
-    return BusinessOwnerLines(
-      lines: json['lines'],
-      lineIDs: json['lineIDs']);
+    print('ResponeObjects: $json');
+    return BusinessOwnerLines(lines: json['lines'], lineIDs: json['lineIDs']);
   }
 }
 
@@ -80,7 +80,6 @@ class CreateBusinessResponse {
 }
 
 class CreateLineResponse {
-
   final String lineID;
 
   const CreateLineResponse({required this.lineID});
@@ -110,15 +109,11 @@ class GetOffersResponse {
 }
 
 class AcceptOfferResponse {
-
   final bool accepted;
 
-  const AcceptOfferResponse(
-      {required this.accepted});
+  const AcceptOfferResponse({required this.accepted});
 
   factory AcceptOfferResponse.fromJson(Map<String, dynamic> json) {
-    return AcceptOfferResponse(
-        accepted: json['accepted']
-    );
+    return AcceptOfferResponse(accepted: json['accepted']);
   }
 }

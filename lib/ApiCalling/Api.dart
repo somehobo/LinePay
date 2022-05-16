@@ -1,10 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:linepay/main.dart';
 import 'ResponseObjects.dart';
 
 // const linePayURL = "http://10.0.2.2:8000/";
 const linePayURL = "http://127.0.0.1:8000/";
+
+Future<void> nextInLineBox(context) async {
+  showDialog(context: context, 
+  builder: (context) =>  AlertDialog(
+    title: const Text('You are ready to be seated!'),
+    content: const Text('Please come to the front desk'),
+    actions: [
+      TextButton(
+        onPressed: () =>
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const MyApp()))
+      , child: const Text('Ok'))
+    ],
+  ));
+}
 
 //Join Line
 Future<JoinLineResponse> joinLineAuthenticated(
@@ -151,15 +167,13 @@ Future<GetOffersResponse> getOffers(String userID) async {
 
 Future<AcceptOfferResponse> acceptOffer(String offerID) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'AcceptOffer/'),
+    Uri.parse(linePayURL + 'AcceptOffer/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'offerID': offerID
-    }),
+    body: jsonEncode(<String, String>{'offerID': offerID}),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
     return AcceptOfferResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
@@ -181,9 +195,10 @@ Future<GetOffersResponse> leaveLine(String userID) async {
   }
 }
 
-Future<AcceptOfferResponse> CreateOffer(String userID, String position, String amount) async {
+Future<AcceptOfferResponse> CreateOffer(
+    String userID, String position, String amount) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'CreateOffer/'),
+    Uri.parse(linePayURL + 'CreateOffer/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -193,7 +208,7 @@ Future<AcceptOfferResponse> CreateOffer(String userID, String position, String a
       'amount': amount
     }),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
     return AcceptOfferResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
