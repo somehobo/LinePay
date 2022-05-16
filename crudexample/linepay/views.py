@@ -300,7 +300,10 @@ def GetLineData(request):
         print(offersToMeSend)
         offersFromMeSend = Offer.objects.filter(line = lineID, madeBy = userID).count() or 0
         list = json.loads(line.positions)
-        positionSend = list.index(int(user.id)) + 1
+        try:
+            positionSend = list.index(int(user.id)) + 1
+        except ValueError:
+            positionSent = 0
         positionsForSale = LinepayUser.objects.filter(line=lineID,positionForSale=True)
         positionsForSaleSend = []
         if (positionsForSale):

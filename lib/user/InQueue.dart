@@ -38,7 +38,7 @@ class InQueuePage extends StatefulWidget {
 class _InQueuePageState extends State<InQueuePage> {
   var lineCode = "";
   var lineName = "";
-  var position = 0;
+  var position = -1;
   var estWaitTime = 23;
   var number = 22;
   var offers = 0;
