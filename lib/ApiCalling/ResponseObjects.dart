@@ -14,6 +14,7 @@ class JoinLineResponse {
   }
 }
 
+
 class LineDataResponse {
   final int position;
   final int offersToMe;
@@ -55,13 +56,17 @@ class userResponse {
   }
 }
 
-class CreateBusinessOwnerResponse {
-  final String boID;
+class BusinessOwnerLines {
+  final Map<dynamic, dynamic>? lines;
+  final Map<dynamic, dynamic>? lineIDs;
 
-  const CreateBusinessOwnerResponse({required this.boID});
-
-  factory CreateBusinessOwnerResponse.fromJson(Map<String, dynamic> json) {
-    return CreateBusinessOwnerResponse(boID: json['userID']);
+  const BusinessOwnerLines({required this.lines, required this.lineIDs});
+  factory BusinessOwnerLines.fromJson(
+      Map<dynamic, Map<dynamic, dynamic>> json) {
+    print(json);
+    return BusinessOwnerLines(
+      lines: json['lines'],
+      lineIDs: json['lineIDs']);
   }
 }
 
@@ -69,17 +74,16 @@ class CreateBusinessResponse {
   final String bID; //businessID
 
   const CreateBusinessResponse({required this.bID});
-
   factory CreateBusinessResponse.fromJson(Map<String, dynamic> json) {
     return CreateBusinessResponse(bID: json['business-ID']);
   }
 }
 
 class CreateLineResponse {
+
   final String lineID;
 
   const CreateLineResponse({required this.lineID});
-
   factory CreateLineResponse.fromJson(Map<String, dynamic> json) {
     return CreateLineResponse(lineID: json['lineID']);
   }
@@ -114,7 +118,7 @@ class AcceptOfferResponse {
 
   factory AcceptOfferResponse.fromJson(Map<String, dynamic> json) {
     return AcceptOfferResponse(
-      accepted: json['accepted']
+        accepted: json['accepted']
     );
   }
 }

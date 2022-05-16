@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'ResponseObjects.dart';
 
-const linePayURL = "http://10.0.2.2:8000/";
-//const linePayURL = "http://127.0.0.1:8000/";
+// const linePayURL = "http://10.0.2.2:8000/";
+const linePayURL = "http://127.0.0.1:8000/";
 
 //Join Line
-Future<JoinLineResponse> joinLineAuthenticated(String lineCode, String userID) async {
+Future<JoinLineResponse> joinLineAuthenticated(
+    String lineCode, String userID) async {
   final response = await http.post(
     Uri.parse(linePayURL + 'JoinLine/'),
     headers: <String, String>{
@@ -70,14 +71,11 @@ Future<http.Response> toggleSale(String userID) async {
 //authenticate in line user
 Future<userResponse> authenticateLineUser(String email, String userID) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'LoginUser/'),
+    Uri.parse(linePayURL + 'LoginUser/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'email': email,
-      'userID': userID
-    }),
+    body: jsonEncode(<String, String>{'email': email, 'userID': userID}),
   );
   if (response.statusCode == 201) {
     return userResponse.fromJson(jsonDecode(response.body));
@@ -90,51 +88,61 @@ Future<userResponse> authenticateLineUser(String email, String userID) async {
 //logs in the owner if they ALREADY EXIST as well
 Future<userResponse> createBusinessOwner(String email) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'CreateBusinessOwner/'),
+    Uri.parse(linePayURL + 'CreateBusinessOwner/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'email': email
-    }),
+    body: jsonEncode(<String, String>{'email': email}),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
     return userResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
   }
 }
 
-Future<CreateLineResponse> createLine(String name, String businessOwner) async {
-  final response = await http.post(
-    Uri.parse(linePayURL+'CreateLine/'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'name': name,
-      'businessOwner': businessOwner
-    }),
-  );
-  if(response.statusCode == 201) {
-    return CreateLineResponse.fromJson(jsonDecode(response.body));
+Future<BusinessOwnerLines> getBusinessOwnerLines(String boID) async {
+  final response =
+      await http.post(Uri.parse(linePayURL + 'getBusinessOwnerLines/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{'boID': boID}));
+  if (response.statusCode == 201) {
+    return BusinessOwnerLines.fromJson(
+        Map<dynamic, Map<dynamic, dynamic>>.from(jsonDecode(response.body)));
+    // return BusinessOwnerLines.fromJson(jsonDecode(response.body));
   } else {
-    throw Exception('Failed to Get Line Data.');
+    throw Exception('Failed to Get Business Owner Data.');
   }
 }
 
-
-Future<GetOffersResponse> getOffers(String userID) async {
+Future<void> createLine(String name, String businessOwner) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'GetOffers/'),
+    Uri.parse(linePayURL + 'CreateLine/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'userID': userID
-    }),
+    body: jsonEncode(
+        <String, String>{'name': name, 'businessOwner': businessOwner}),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
+    return;
+    // return CreateLineResponse.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to create Line.');
+  }
+}
+
+Future<GetOffersResponse> getOffers(String userID) async {
+  final response = await http.post(
+    Uri.parse(linePayURL + 'GetOffers/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{'userID': userID}),
+  );
+  if (response.statusCode == 201) {
     return GetOffersResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
@@ -160,15 +168,13 @@ Future<AcceptOfferResponse> acceptOffer(String offerID) async {
 
 Future<GetOffersResponse> leaveLine(String userID) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'leaveLine/'),
+    Uri.parse(linePayURL + 'leaveLine/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'userID': userID
-    }),
+    body: jsonEncode(<String, String>{'userID': userID}),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
     return GetOffersResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');

@@ -55,9 +55,9 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
 
   isAuthenticated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(prefs.getBool('authenticated') != null) {
-      if(prefs.getBool('authenticated') == true) {
-         authenticatedUser = prefs.getString('userID')!;
+    if (prefs.getBool('authenticated') != null) {
+      if (prefs.getBool('authenticated') == true) {
+        authenticatedUser = prefs.getString('userID')!;
       }
     }
   }
@@ -125,7 +125,8 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     onSubmitted: (value) {
                       if(authenticatedUser != "") {
                         setState(() {
-                          _futureJoinLineResponse = joinLineAuthenticated(value, authenticatedUser);
+                          _futureJoinLineResponse =
+                              joinLineAuthenticated(value, authenticatedUser);
                         });
                       } else {
                         setState(() {
@@ -159,7 +160,8 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginPage(isBusiness: true)))),
+                              builder: (context) =>
+                                  const LoginPage(isBusiness: true)))),
                 )),
           ),
           const SizedBox(height: 50)
@@ -172,16 +174,16 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           print(authenticatedUser);
-          if(authenticatedUser != "") {
+          if (authenticatedUser != "") {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    //todo: replace with real home page
-                      builder: (context) =>
-                          InQueuePage(lineID: snapshot.data!.lineID,
-                            userID: snapshot.data!.userID,)
-                  ));
+                      //todo: replace with real home page
+                      builder: (context) => InQueuePage(
+                            lineID: snapshot.data!.lineID,
+                            userID: snapshot.data!.userID,
+                          )));
             });
           } else {
             addStringToSF(snapshot.data!.userID);
@@ -189,11 +191,11 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    //todo: replace with real home page
-                      builder: (context) =>
-                          DefaultUser(lineID: snapshot.data!.lineID,
-                            userID: snapshot.data!.userID,)
-                  ));
+                      //todo: replace with real home page
+                      builder: (context) => DefaultUser(
+                            lineID: snapshot.data!.lineID,
+                            userID: snapshot.data!.userID,
+                          )));
             });
           }
         } else if (snapshot.hasError) {

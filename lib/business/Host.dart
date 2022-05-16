@@ -4,6 +4,7 @@ import 'package:linepay/ApiCalling/Api.dart';
 import 'package:linepay/ApiCalling/ResponseObjects.dart';
 import 'package:linepay/business/LineDetails.dart';
 import 'package:linepay/preferences/LinePayColors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // HOST PAGE CLASS
 class HostPage extends StatefulWidget {
@@ -14,21 +15,62 @@ class HostPage extends StatefulWidget {
 }
 
 class _HostPageState extends State<HostPage> {
-  late Stream<LineDataResponse> _hostData;
-  // todo: get hosting data from api
-  bool _hosting = true;
+  final TextEditingController _lineNameController = TextEditingController();
+  late final SharedPreferences _prefs;
+  late final String _boID;
+  late Stream<BusinessOwnerLines>? _lines;
+  var _timer;
 
   @override
   void initState() {
     super.initState();
+    getSharedPrefs();
+  }
+
+  Future<void> getSharedPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    _boID = _prefs.getString('boID').toString();
+    _lines = getBusinessOwnerLines(_boID).asStream();
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      _lines = getBusinessOwnerLines(_boID).asStream();
+    });
+    print(_lines);
+  }
+
+  Widget lineCard(
+      Map<String, int> linesMap, Map<String, int> lineIDs, int index) {
+    String name = linesMap.keys.elementAt(index);
+    int persons = linesMap.values.elementAt(index);
+    int lineID = lineIDs[name]!;
+    return Container(
+        padding: const EdgeInsets.all(7),
+        height: 50,
+        decoration: BoxDecoration(
+          color: (index % 2 == 0)
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).colorScheme.secondary,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: InkWell(
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            Text(name, style: const TextStyle(fontSize: 22)),
+            Text('People waiting: $persons',
+                style: const TextStyle(fontSize: 22))
+          ]),
+          onTap: () => Navigator.push(
+              (context),
+              MaterialPageRoute(
+                  builder: (context) => LineDetails(
+                        lineName: name,
+                        persons: persons,
+                        lineID: lineID,
+                      ))),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return (_hosting) ? hosting() : createLine();
-  }
-
-  Scaffold hosting() {
     return Scaffold(
         appBar: AppBar(
           leading: const BackButton(color: text_color),
@@ -51,7 +93,7 @@ class _HostPageState extends State<HostPage> {
                 const SizedBox(height: 30),
                 SingleChildScrollView(
                     child: StreamBuilder(
-                        stream: null, //_hostData,
+                        stream: _lines, //_hostData,
                         builder:
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasError) {
@@ -62,17 +104,20 @@ class _HostPageState extends State<HostPage> {
                             return const CircularProgressIndicator();
                           }
                           if (snapshot.hasData) {
-                            LineDataResponse offerData = snapshot.data;
+                            Map<String, int> linesMap =
+                                Map<String, int>.from(snapshot.data.lines);
+                            Map<String, int> lineIDs =
+                                Map<String, int>.from(snapshot.data.lines);
+                            // LINE CARD BUILDER
                             return ListView.separated(
-                              itemCount: offerData.offersToMe,
+                              itemCount: linesMap.length,
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       const Divider(),
                               itemBuilder: (BuildContext context, int index) {
-                                // todo: card builder
-                                return Text('');
+                                return lineCard(linesMap, lineIDs, index);
                               },
                             );
                           }
@@ -103,7 +148,7 @@ class _HostPageState extends State<HostPage> {
                             onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => createLine())),
+                                    builder: (context) => createHostLine())),
                           ))),
                 ),
                 const SizedBox(height: 50)
@@ -111,7 +156,7 @@ class _HostPageState extends State<HostPage> {
         ));
   }
 
-  Scaffold createLine() {
+  Scaffold createHostLine() {
     return Scaffold(
         appBar: AppBar(
           leading: const BackButton(color: text_color),
@@ -146,6 +191,7 @@ class _HostPageState extends State<HostPage> {
                     height: 10,
                   ),
                   TextField(
+                    controller: _lineNameController,
                     textAlign: TextAlign.left,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
@@ -169,6 +215,7 @@ class _HostPageState extends State<HostPage> {
                       )),
                   const SizedBox(height: 10),
                   TextField(
+                    // controller: _lineLimitController,
                     textAlign: TextAlign.left,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
@@ -189,7 +236,15 @@ class _HostPageState extends State<HostPage> {
                     style: TextButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor),
                     // todo: CREATE LINE FUNCTION
-                    onPressed: null,
+                    onPressed: () {
+                      if (_lineNameController.text.isEmpty) {
+                        print("lineNameController is empty");
+                        null;
+                      } else {
+                        createLine(_lineNameController.text, _boID);
+                        Navigator.pop(context);
+                      }
+                    },
                   )
                 ])));
   }

@@ -41,5 +41,5 @@ urlpatterns = [
     path('leaveLine/',views.LeaveLine),
     path('AcceptOffer/',views.AcceptOffer),
     path('CreateOffer/',views.CreateOffer),
-
+    path('getBusinessOwnerLines/',views.getBusinessOwnerLines),
 ]
