@@ -65,6 +65,12 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
     }
   }
 
+  clearSharedPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    authenticatedUser = "";
+  }
+
   @override
   void initState() {
     isAuthenticated();
@@ -94,6 +100,8 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                TextButton(onPressed: () {clearSharedPref(); isAuthenticated();}, child: Text("Logout")),
+
                 const Flexible(
                   flex: 3,
                   child: Text(
@@ -118,7 +126,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     ),
                     style: const TextStyle(color: Colors.white),
                     onSubmitted: (value) {
-                      if(authenticatedUser != null) {
+                      if(authenticatedUser != "") {
                         setState(() {
                           _futureJoinLineResponse = joinLineAuthenticated(value, authenticatedUser);
                         });

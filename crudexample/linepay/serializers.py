@@ -27,7 +27,7 @@ class BusinessSerializer(serializers.ModelSerializer):
 class BusinessOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessOwner
-        fields = ["email"]
+        fields = ["email", 'business']
 
 class DecrementLineSerializer(serializers.Serializer):
     lineID = serializers.IntegerField()
@@ -35,7 +35,7 @@ class DecrementLineSerializer(serializers.Serializer):
 
 class JoinLineSerializer(serializers.Serializer):
     lineCode = serializers.CharField()
-    userID = serializers.CharField(required=False,default='-1')
+    userID = serializers.CharField()
 
 class CreateLineSerializer(serializers.Serializer):
     businessID = serializers.IntegerField()
