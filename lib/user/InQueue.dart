@@ -107,7 +107,7 @@ class _InQueuePageState extends State<InQueuePage> {
         });
       }
       setState(() {
-        nextInLine = _lineDataResponse.nextInLine;
+        nextInLine = (position == 0);
         if (nextInLine) {
           _clockTimer.cancel();
           nextInLineBox(context);
