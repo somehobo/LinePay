@@ -18,7 +18,7 @@ class _HostPageState extends State<HostPage> {
   final TextEditingController _lineNameController = TextEditingController();
   late final SharedPreferences _prefs;
   late final String _boID;
-  late Stream<BusinessOwnerLines>? _lines;
+  Stream<BusinessOwnerLines>? _lines;
   var _timer;
 
   @override
@@ -33,6 +33,9 @@ class _HostPageState extends State<HostPage> {
     _lines = getBusinessOwnerLines(_boID).asStream();
     _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       _lines = getBusinessOwnerLines(_boID).asStream();
+      setState(() {
+
+      });
     });
     print(_lines);
   }
@@ -107,7 +110,7 @@ class _HostPageState extends State<HostPage> {
                             Map<String, int> linesMap =
                                 Map<String, int>.from(snapshot.data.lines);
                             Map<String, int> lineIDs =
-                                Map<String, int>.from(snapshot.data.lines);
+                                Map<String, int>.from(snapshot.data.lineIDs);
                             // LINE CARD BUILDER
                             return ListView.separated(
                               itemCount: linesMap.length,

@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'ResponseObjects.dart';
 
 // const linePayURL = "http://10.0.2.2:8000/";
-const linePayURL = "http://127.0.0.1:8000/";
+const linePayURL = "http://35.230.23.243/";
 
 //Join Line
 Future<JoinLineResponse> joinLineAuthenticated(
@@ -201,6 +201,24 @@ Future<AcceptOfferResponse> CreateOffer(String userID, String position, String a
 }
 
 //next is NEXT IN LINE
+
+  Dequeue(String lineID, String position) async {
+  final response = await http.post(
+    Uri.parse(linePayURL+'DecrementLine/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'lineID': lineID,
+      'position': position,
+    }),
+  );
+  if(response.statusCode == 201) {
+    return AcceptOfferResponse.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to Get Line Data.');
+  }
+}
 
 
 
