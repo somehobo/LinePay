@@ -14,7 +14,6 @@ class JoinLineResponse {
   }
 }
 
-
 class LineDataResponse {
   final int position;
   final int offersToMe;
@@ -24,24 +23,26 @@ class LineDataResponse {
   final bool positionForSale;
   final String lineCode;
 
-  const LineDataResponse(
-      {required this.position,
-      required this.offersToMe,
-      required this.offersFromMe,
-      required this.positionsForSale,
-      required this.lineName,
-      required this.positionForSale,
-      required this.lineCode});
+  const LineDataResponse({
+    required this.position,
+    required this.offersToMe,
+    required this.offersFromMe,
+    required this.positionsForSale,
+    required this.lineName,
+    required this.positionForSale,
+    required this.lineCode,
+  });
 
   factory LineDataResponse.fromJson(Map<String, dynamic> json) {
     return LineDataResponse(
-        position: json['position'],
-        offersToMe: json['offersToMe'],
-        offersFromMe: json['offersFromMe'],
-        positionsForSale: json['positionsForSale'].cast<int>(),
-        lineName: json['lineName'],
-        positionForSale: json['positionForSale'],
-        lineCode: json['lineCode']);
+      position: json['position'],
+      offersToMe: json['offersToMe'],
+      offersFromMe: json['offersFromMe'],
+      positionsForSale: json['positionsForSale'].cast<int>(),
+      lineName: json['lineName'],
+      positionForSale: json['positionForSale'],
+      lineCode: json['lineCode'],
+    );
   }
 }
 
@@ -63,10 +64,8 @@ class BusinessOwnerLines {
   const BusinessOwnerLines({required this.lines, required this.lineIDs});
   factory BusinessOwnerLines.fromJson(
       Map<dynamic, Map<dynamic, dynamic>> json) {
-    print(json);
-    return BusinessOwnerLines(
-      lines: json['lines'],
-      lineIDs: json['lineIDs']);
+    print('ResponeObjects: $json');
+    return BusinessOwnerLines(lines: json['lines'], lineIDs: json['lineIDs']);
   }
 }
 
@@ -80,7 +79,6 @@ class CreateBusinessResponse {
 }
 
 class CreateLineResponse {
-
   final String lineID;
 
   const CreateLineResponse({required this.lineID});
@@ -110,15 +108,11 @@ class GetOffersResponse {
 }
 
 class AcceptOfferResponse {
-
   final bool accepted;
 
-  const AcceptOfferResponse(
-      {required this.accepted});
+  const AcceptOfferResponse({required this.accepted});
 
   factory AcceptOfferResponse.fromJson(Map<String, dynamic> json) {
-    return AcceptOfferResponse(
-        accepted: json['accepted']
-    );
+    return AcceptOfferResponse(accepted: json['accepted']);
   }
 }

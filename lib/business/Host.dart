@@ -18,33 +18,36 @@ class _HostPageState extends State<HostPage> {
   final TextEditingController _lineNameController = TextEditingController();
   late final SharedPreferences _prefs;
   late final String _boID;
-  Stream<BusinessOwnerLines>? _lines;
-  var _timer;
+  late Future<BusinessOwnerLines> _lines;
+  late Stream<Map<String, int>>? _linesMap;
+  Timer? _timer;
 
   @override
   void initState() {
-    super.initState();
     getSharedPrefs();
+    super.initState();
   }
 
   Future<void> getSharedPrefs() async {
     _prefs = await SharedPreferences.getInstance();
     _boID = _prefs.getString('boID').toString();
-    _lines = getBusinessOwnerLines(_boID).asStream();
-    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      _lines = getBusinessOwnerLines(_boID).asStream();
-      setState(() {
+    _lines = getBusinessOwnerLines(_boID); //.asStream();
+    _lines.then((data) => _linesMap = data.lines as Stream<Map<String, int>>);
+    // _linesMap = _lines.lines as Stream<Map<String, int>>;
 
-      });
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      _lines = getBusinessOwnerLines(_boID); //.asStream();
+      _lines.then((data) => _linesMap = data.lines as Stream<Map<String, int>>);
+      // _linesMap = _lines.lines as Stream<Map<String, int>>;
+      print('Timer: $_linesMap');
     });
-    print(_lines);
+    // setState(() {});
   }
 
-  Widget lineCard(
-      Map<String, int> linesMap, Map<String, int> lineIDs, int index) {
+  Widget lineCard(Map<String, int> linesMap, int index) {
     String name = linesMap.keys.elementAt(index);
     int persons = linesMap.values.elementAt(index);
-    int lineID = lineIDs[name]!;
+    int lineID = 0; //lineIDs[name]!;
     return Container(
         padding: const EdgeInsets.all(7),
         height: 50,
@@ -96,7 +99,7 @@ class _HostPageState extends State<HostPage> {
                 const SizedBox(height: 30),
                 SingleChildScrollView(
                     child: StreamBuilder(
-                        stream: _lines, //_hostData,
+                        stream: _linesMap, //_hostData,
                         builder:
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasError) {
@@ -107,20 +110,22 @@ class _HostPageState extends State<HostPage> {
                             return const CircularProgressIndicator();
                           }
                           if (snapshot.hasData) {
-                            Map<String, int> linesMap =
-                                Map<String, int>.from(snapshot.data.lines);
-                            Map<String, int> lineIDs =
-                                Map<String, int>.from(snapshot.data.lineIDs);
+                            // Map<String, int> linesMap =
+                            //     Map<String, int>.from(snapshot.data.lines);
+                            // Map<String, int> lineIDs =
+                            //     Map<String, int>.from(snapshot.data.lineIDs);
                             // LINE CARD BUILDER
                             return ListView.separated(
-                              itemCount: linesMap.length,
+                              itemCount:
+                                  snapshot.data.length, //linesMap.length,
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       const Divider(),
                               itemBuilder: (BuildContext context, int index) {
-                                return lineCard(linesMap, lineIDs, index);
+                                return lineCard(snapshot.data, index);
+                                // return lineCard(linesMap, lineIDs, index);
                               },
                             );
                           }
@@ -245,7 +250,9 @@ class _HostPageState extends State<HostPage> {
                         null;
                       } else {
                         createLine(_lineNameController.text, _boID);
-                        Navigator.pop(context);
+                        setState(() {
+                          Navigator.pop(context);
+                        });
                       }
                     },
                   )

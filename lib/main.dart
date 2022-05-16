@@ -12,7 +12,6 @@ import 'ApiCalling/Api.dart';
 import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -97,7 +96,12 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // TextButton(onPressed: () {clearSharedPref(); isAuthenticated();}, child: Text("Logout")),
+                TextButton(
+                    onPressed: () {
+                      clearSharedPref();
+                      isAuthenticated();
+                    },
+                    child: Text("Logout")),
 
                 const Flexible(
                   flex: 3,
@@ -123,7 +127,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     ),
                     style: const TextStyle(color: Colors.white),
                     onSubmitted: (value) {
-                      if(authenticatedUser != "") {
+                      if (authenticatedUser != "") {
                         setState(() {
                           _futureJoinLineResponse =
                               joinLineAuthenticated(value, authenticatedUser);
@@ -175,7 +179,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
         if (snapshot.hasData) {
           print(authenticatedUser);
           if (authenticatedUser != "") {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -187,7 +191,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
             });
           } else {
             addStringToSF(snapshot.data!.userID);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

@@ -326,7 +326,8 @@ def GetLineData(request):
          'positionsForSale': positionsForSaleSend,
          'lineName':lineNameSend,
          'positionForSale':positionForSaleSend,
-         'lineCode':line.lineCode})
+         'lineCode':line.lineCode,
+         'nextInLine': user.nextInLine})
         #todo: estimated wait time
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(getLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -364,6 +365,7 @@ def AcceptOffer(request):
         Offer.objects.filter(madeBy=offer.madeTo).delete()
         return Response(data={'accepted':True},status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def CreateOffer(request):
