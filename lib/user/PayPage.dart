@@ -35,7 +35,8 @@ class _PayPageState extends State<PayPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: backGround,
+          leading: const BackButton(color: text_color),
+          backgroundColor: backGround,
         title: Text("Make offer to position " +widget.linePos,
             textAlign: TextAlign.center,
             style: TextStyle(color: text_color),

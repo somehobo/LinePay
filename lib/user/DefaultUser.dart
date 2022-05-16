@@ -20,7 +20,7 @@ class DefaultUser extends StatefulWidget {
 class _DefaultUserState extends State<DefaultUser> {
   var lineCode = "";
   var lineName = "";
-  var position = 0;
+  var position = -1;
   var estWaitTime = 23;
   var number = 22;
   var offers = 0;
