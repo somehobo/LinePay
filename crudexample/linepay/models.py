@@ -32,7 +32,6 @@ class LinepayUser(models.Model):
     positionForSale = models.BooleanField(default=False)
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='users', blank=True, null=True)
     isTemp = models.BooleanField(default=False)
-    nextInLine = models.BooleanField(default=False)
     class Meta:
         db_table = "linepayUser"
 

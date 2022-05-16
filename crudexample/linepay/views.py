@@ -126,7 +126,7 @@ def getBusinessOwnerLines(request):
         if (BusinessOwner.objects.filter(id=boIDSerializer.data['boID']).exists):
             lines = Line.objects.filter(businessOwner=boIDSerializer.data['boID'])
             for line in lines:
-                data[line.name] = len(line.positions)
+                data[line.name] = len(json.loads(line.positions))
                 lineIDs[line.name] = line.id
             god.update({"lines": data})
             god.update({"lineIDs": lineIDs})
@@ -183,8 +183,13 @@ def DecrementLine(request):
     decrementLineSerializer = DecrementLineSerializer(data=request.data)
     if(decrementLineSerializer.is_valid()):
         lineID = decrementLineSerializer.data['lineID']
+        line = Line.objects.get(id=lineID)
         position = decrementLineSerializer.data['position']
-        takeOutOfLine(lineID, position)
+        positions = line.positions
+        print(position)
+        if(positions != ""):
+            firstID = json.loads(positions)[position-1]
+            takeOutOfLine(line, firstID)
         return Response(decrementLineSerializer.data, status=status.HTTP_201_CREATED)
     return Response(decrementLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
