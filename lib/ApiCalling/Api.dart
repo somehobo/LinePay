@@ -30,7 +30,7 @@ Future<JoinLineResponse> joinLine(String lineCode) async {
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{'lineCode': lineCode}),
+    body: jsonEncode(<String, String>{'lineCode': lineCode, 'userID': "-1"}),
   );
   if (response.statusCode == 201) {
     var joinLineResponse = JoinLineResponse.fromJson(jsonDecode(response.body));
@@ -141,6 +141,23 @@ Future<GetOffersResponse> getOffers(String userID) async {
   }
 }
 
+Future<AcceptOfferResponse> acceptOffer(String offerID) async {
+  final response = await http.post(
+    Uri.parse(linePayURL+'AcceptOffer/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'offerID': offerID
+    }),
+  );
+  if(response.statusCode == 201) {
+    return AcceptOfferResponse.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to Get Line Data.');
+  }
+}
+
 Future<GetOffersResponse> leaveLine(String userID) async {
   final response = await http.post(
     Uri.parse(linePayURL+'leaveLine/'),
@@ -153,6 +170,25 @@ Future<GetOffersResponse> leaveLine(String userID) async {
   );
   if(response.statusCode == 201) {
     return GetOffersResponse.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to Get Line Data.');
+  }
+}
+
+Future<AcceptOfferResponse> CreateOffer(String userID, String position, String amount) async {
+  final response = await http.post(
+    Uri.parse(linePayURL+'CreateOffer/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'userID': userID,
+      'positions': position,
+      'amount': amount
+    }),
+  );
+  if(response.statusCode == 201) {
+    return AcceptOfferResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
   }

@@ -60,7 +60,6 @@ class _InQueuePageState extends State<InQueuePage> {
   void initState() {
     super.initState();
     _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      print(timer.tick);
       LineDataResponse _lineDataResponse =
           await getLineData(widget.lineID.toString(), widget.userID);
       var newLineName = _lineDataResponse.lineName;
@@ -96,7 +95,6 @@ class _InQueuePageState extends State<InQueuePage> {
       }
       Function eq = const ListEquality().equals;
       if (!eq(newlineSales, lineSales)) {
-        print(newlineSales);
         setState(() {
           lineSales = newlineSales;
         });
@@ -274,10 +272,7 @@ class _InQueuePageState extends State<InQueuePage> {
           child: InkWell(
             child: Align(
               child: Text(
-                "   Line Position: " +
-                    linePos.a.toString() +
-                    " Price: " +
-                    linePos.b.toString(),
+                "       Line Position: "+ linePos.a.toString(),
                 style: const TextStyle(fontSize: 20),
               ),
               alignment: Alignment.centerLeft,
