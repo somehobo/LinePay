@@ -139,7 +139,7 @@ class _HostPageState extends State<HostPage> {
                           }
                           if (snapshot.hasData) {
                             return ListView.separated(
-                              itemCount: linesMap.length,
+                              itemCount: snapshot.data.length,
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
                               separatorBuilder:
