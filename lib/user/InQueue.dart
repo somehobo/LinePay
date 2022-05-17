@@ -144,62 +144,65 @@ class _InQueuePageState extends State<InQueuePage> {
             textAlign: TextAlign.center,
           ),
         ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(20.0),
-                    border: Border.all(width: 0.0, color: Colors.black),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Line Code: " + lineCode,
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
-                Container(
-                    margin: const EdgeInsets.only(top: 5),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
                     height: 150,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(20.0),
                       border: Border.all(width: 0.0, color: Colors.black),
                     ),
                     child: Center(
-                      child: Column(
-                        children: [
-                          const Padding(padding: EdgeInsets.only(top: 20)),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            alignment: Alignment.center,
-                            child: Text(
-                              (position >= 0)
-                                  ? "Position: " + position.toString()
-                                  : 'Position: ',
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                          ),
-                          const Padding(padding: EdgeInsets.only(top: 20)),
-                          sellPosition()
-                        ],
+                      child: Text(
+                        "Line Code: " + lineCode,
+                        style: const TextStyle(fontSize: 20),
                       ),
-                    )),
-                // const Padding(padding: EdgeInsets.only(top: 10)),
-                // Text(
-                //   "Estimated wait time: " + estWaitTime.toString() + " min",
-                //   style: const TextStyle(fontSize: 20),
-                //   textAlign: TextAlign.left,
-                // ),
-              ],
-            ),
-            bottomLinesSheet()
-          ],
+                    ),
+                  ),
+                  Container(
+                      margin: const EdgeInsets.only(top: 5),
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(20.0),
+                        border: Border.all(width: 0.0, color: Colors.black),
+                      ),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            const Padding(padding: EdgeInsets.only(top: 20)),
+                            Container(
+                              margin: const EdgeInsets.only(left: 10),
+                              alignment: Alignment.center,
+                              child: Text(
+                                (position >= 0)
+                                    ? "Position: " + position.toString()
+                                    : 'Position: ',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ),
+                            const Padding(padding: EdgeInsets.only(top: 20)),
+                            sellPosition()
+                          ],
+                        ),
+                      )),
+                  // const Padding(padding: EdgeInsets.only(top: 10)),
+                  // Text(
+                  //   "Estimated wait time: " + estWaitTime.toString() + " min",
+                  //   style: const TextStyle(fontSize: 20),
+                  //   textAlign: TextAlign.left,
+                  // ),
+                ],
+              ),
+              bottomLinesSheet()
+            ],
+          ),
         ));
   }
 

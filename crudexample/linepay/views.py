@@ -126,7 +126,9 @@ def getBusinessOwnerLines(request):
         if (BusinessOwner.objects.filter(id=boIDSerializer.data['boID']).exists):
             lines = Line.objects.filter(businessOwner=boIDSerializer.data['boID'])
             for line in lines:
-                data[line.name] = len(json.loads(line.positions))
+                if (line.positions != ''):
+                    data[line.name] = len(json.loads(line.positions))
+                data[line.name] = 0
                 lineIDs[line.name] = line.id
             god.update({"lines": data})
             god.update({"lineIDs": lineIDs})
@@ -326,8 +328,7 @@ def GetLineData(request):
          'positionsForSale': positionsForSaleSend,
          'lineName':lineNameSend,
          'positionForSale':positionForSaleSend,
-         'lineCode':line.lineCode,
-         'nextInLine': user.nextInLine})
+         'lineCode':line.lineCode,})
         #todo: estimated wait time
         return Response(data, status=status.HTTP_201_CREATED)
     return Response(getLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:linepay/ApiCalling/Api.dart';
 import 'package:linepay/ApiCalling/ResponseObjects.dart';
@@ -19,8 +20,13 @@ class _HostPageState extends State<HostPage> {
   late final SharedPreferences _prefs;
   late final String _boID;
   late Future<BusinessOwnerLines> _lines;
-  late Stream<Map<String, int>>? _linesMap;
+  late Map<String, dynamic> _linesMap;
+  late Map<String, dynamic> _linesIDs;
   Timer? _timer;
+
+  StreamController<Map<String, dynamic>> streamController =
+      StreamController<Map<String, dynamic>>();
+  late Stream _linesStream;
 
   @override
   void initState() {
@@ -28,23 +34,39 @@ class _HostPageState extends State<HostPage> {
     super.initState();
   }
 
-  Future<void> getSharedPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
-    _boID = _prefs.getString('boID').toString();
-    _lines = getBusinessOwnerLines(_boID); //.asStream();
-    _lines.then((data) => _linesMap = data.lines as Stream<Map<String, int>>);
-    // _linesMap = _lines.lines as Stream<Map<String, int>>;
-
-    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      _lines = getBusinessOwnerLines(_boID); //.asStream();
-      _lines.then((data) => _linesMap = data.lines as Stream<Map<String, int>>);
-      // _linesMap = _lines.lines as Stream<Map<String, int>>;
-      print('Timer: $_linesMap');
-    });
-    // setState(() {});
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
-  Widget lineCard(Map<String, int> linesMap, int index) {
+  Future<void> getSharedPrefs() async {
+    _linesStream = streamController.stream;
+
+    _prefs = await SharedPreferences.getInstance();
+    _boID = _prefs.getString('boID').toString();
+    _lines = getBusinessOwnerLines(_boID);
+    _lines.then((data) {
+      _linesMap = data.lines!;
+      _linesIDs = data.lineIDs!;
+      streamController.add(_linesMap);
+    });
+
+    // PERIODIC TIMER
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      _lines = getBusinessOwnerLines(_boID);
+      _lines.then((data) {
+        _linesMap = data.lines!;
+        _linesIDs = data.lineIDs!;
+        streamController.add(_linesMap);
+      });
+      // print("lines: $_lines");
+      // print('linesMap: $_linesMap');
+    });
+  }
+
+  Widget lineCard(
+      Map<String, dynamic> linesMap, Map<String, dynamic> lineIDs, int index) {
     String name = linesMap.keys.elementAt(index);
     int persons = linesMap.values.elementAt(index);
     int lineID = 0; //lineIDs[name]!;
@@ -99,7 +121,13 @@ class _HostPageState extends State<HostPage> {
                 const SizedBox(height: 30),
                 SingleChildScrollView(
                     child: StreamBuilder(
-                        stream: _linesMap, //_hostData,
+                        stream: _linesStream, //_hostData,
+                        initialData: () => const Text('No lines to show',
+                            style: TextStyle(
+                              fontFamily: 'Open Sans',
+                              fontSize: 20,
+                              color: text_color,
+                            )),
                         builder:
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasError) {
@@ -110,21 +138,16 @@ class _HostPageState extends State<HostPage> {
                             return const CircularProgressIndicator();
                           }
                           if (snapshot.hasData) {
-                            // Map<String, int> linesMap =
-                            //     Map<String, int>.from(snapshot.data.lines);
-                            // Map<String, int> lineIDs =
-                            //     Map<String, int>.from(snapshot.data.lineIDs);
-                            // LINE CARD BUILDER
                             return ListView.separated(
-                              itemCount:
-                                  snapshot.data.length, //linesMap.length,
+                              itemCount: snapshot.data.length,
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       const Divider(),
                               itemBuilder: (BuildContext context, int index) {
-                                return lineCard(snapshot.data, index);
+                                return lineCard(
+                                    snapshot.data, _linesIDs, index);
                                 // return lineCard(linesMap, lineIDs, index);
                               },
                             );

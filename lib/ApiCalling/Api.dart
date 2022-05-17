@@ -127,7 +127,7 @@ Future<BusinessOwnerLines> getBusinessOwnerLines(String boID) async {
           body: jsonEncode(<String, String>{'boID': boID}));
   if (response.statusCode == 201) {
     return BusinessOwnerLines.fromJson(
-        Map<dynamic, Map<dynamic, dynamic>>.from(jsonDecode(response.body)));
+        Map<String, Map<String, dynamic>>.from(jsonDecode(response.body)));
     // return BusinessOwnerLines.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Business Owner Data.');
