@@ -96,13 +96,13 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // CLEAR PREFERENCES
                 // TextButton(
                 //     onPressed: () {
                 //       clearSharedPref();
                 //       isAuthenticated();
                 //     },
                 //     child: Text("Logout")),
-
                 const Flexible(
                   flex: 3,
                   child: Text(

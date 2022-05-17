@@ -129,9 +129,10 @@ class _LoginPageState extends State<LoginPage> {
                             if (snapshot.data?.userID != null) {
                               if (widget.isBusiness) {
                                 businessNavigate(snapshot.data!.userID);
+                              } else {
+                                userNavigate(snapshot.data!.userID,
+                                    snapshot.data!.lineID);
                               }
-                              userNavigate(
-                                  snapshot.data!.userID, snapshot.data!.lineID);
                             }
                           } else {
                             print(snapshot.error);
