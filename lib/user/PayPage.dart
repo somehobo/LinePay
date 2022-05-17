@@ -27,6 +27,7 @@ class PayPage extends StatefulWidget {
 // LOGIN PAGE SCAFFOLD
 class _PayPageState extends State<PayPage> {
   String userID = "";
+  var userPos = -1;
   var nextInLine = false;
   var _clockTimer;
 
@@ -42,8 +43,14 @@ class _PayPageState extends State<PayPage> {
     _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       LineDataResponse _lineDataResponse =
           await getLineData(widget.lineID.toString(), widget.userID);
+      var newPosition = _lineDataResponse.position;
+      if (newPosition != userPos) {
+        setState(() {
+          userPos = newPosition;
+        });
+      }
       setState(() {
-        nextInLine = _lineDataResponse.nextInLine;
+        nextInLine = (userPos == 0);
         if (nextInLine) {
           _clockTimer.cancel();
           nextInLineBox(context);

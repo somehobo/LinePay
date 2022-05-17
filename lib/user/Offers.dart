@@ -30,6 +30,7 @@ class OffersPage extends StatefulWidget {
 
 class _OffersPageState extends State<OffersPage> {
   var offers = [];
+  var userPos = -1;
   var nextInLine = false;
   var _clockTimer;
 
@@ -63,14 +64,20 @@ class _OffersPageState extends State<OffersPage> {
           offers = newOffers;
         });
       }
+      var newPosition = _lineDataResponse.position;
+      if (newPosition != userPos) {
+        setState(() {
+          userPos = newPosition;
+        });
+      }
+      print(userPos);
       setState(() {
-        nextInLine = _lineDataResponse.nextInLine;
+        nextInLine = (userPos == 0);
         if (nextInLine) {
           _clockTimer.cancel();
           nextInLineBox(context);
         }
       });
-
     });
   }
 

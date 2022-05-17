@@ -9,17 +9,18 @@ import 'ResponseObjects.dart';
 const linePayURL = "http://35.230.23.243/";
 
 Future<void> nextInLineBox(context) async {
-  showDialog(context: context, 
-  builder: (context) =>  AlertDialog(
-    title: const Text('You are ready to be seated!'),
-    content: const Text('Please come to the front desk'),
-    actions: [
-      TextButton(
-        onPressed: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const MyApp()))
-      , child: const Text('Ok'))
-    ],
-  ));
+  showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('You are ready to be seated!'),
+            content: const Text('Please come to the front desk'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const MyApp())),
+                  child: const Text('Ok'))
+            ],
+          ));
 }
 
 //Join Line
@@ -217,9 +218,9 @@ Future<AcceptOfferResponse> CreateOffer(
 
 //next is NEXT IN LINE
 
-  Dequeue(String lineID, String position) async {
+Dequeue(String lineID, String position) async {
   final response = await http.post(
-    Uri.parse(linePayURL+'DecrementLine/'),
+    Uri.parse(linePayURL + 'DecrementLine/'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -228,14 +229,9 @@ Future<AcceptOfferResponse> CreateOffer(
       'position': position,
     }),
   );
-  if(response.statusCode == 201) {
+  if (response.statusCode == 201) {
     return AcceptOfferResponse.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Line Data.');
   }
 }
-
-
-
-
-
