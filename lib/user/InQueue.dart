@@ -179,7 +179,9 @@ class _InQueuePageState extends State<InQueuePage> {
                             margin: const EdgeInsets.only(left: 10),
                             alignment: Alignment.center,
                             child: Text(
-                              "Position: " + position.toString(),
+                              (position >= 0)
+                                  ? "Position: " + position.toString()
+                                  : 'Position: ',
                               style: const TextStyle(fontSize: 20),
                             ),
                           ),
@@ -289,8 +291,11 @@ class _InQueuePageState extends State<InQueuePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        PayPage(linePos: linePos.a.toString(), lineID: widget.lineID, userID: widget.userID,)),
+                    builder: (context) => PayPage(
+                          linePos: linePos.a.toString(),
+                          lineID: widget.lineID,
+                          userID: widget.userID,
+                        )),
               );
             },
           ),
