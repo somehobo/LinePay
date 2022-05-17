@@ -30,8 +30,8 @@ class _HostPageState extends State<HostPage> {
 
   @override
   void initState() {
-    super.initState();
     getSharedPrefs();
+    super.initState();
   }
 
   @override
@@ -69,7 +69,7 @@ class _HostPageState extends State<HostPage> {
       Map<String, dynamic> linesMap, Map<String, dynamic> lineIDs, int index) {
     String name = linesMap.keys.elementAt(index);
     int persons = linesMap.values.elementAt(index);
-    int lineID = lineIDs[name]!;
+    int lineID = 0; //lineIDs[name]!;
     return Container(
         padding: const EdgeInsets.all(7),
         height: 50,
@@ -273,7 +273,9 @@ class _HostPageState extends State<HostPage> {
                         null;
                       } else {
                         createLine(_lineNameController.text, _boID);
-                        Navigator.pop(context);
+                        setState(() {
+                          Navigator.pop(context);
+                        });
                       }
                     },
                   )

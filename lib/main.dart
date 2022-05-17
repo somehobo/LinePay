@@ -12,7 +12,6 @@ import 'ApiCalling/Api.dart';
 import 'ApiCalling/ResponseObjects.dart';
 import 'preferences/LinePayTheme.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -128,7 +127,7 @@ class _NumericKeyboardState extends State<NumericKeyboardPage> {
                     ),
                     style: const TextStyle(color: Colors.white),
                     onSubmitted: (value) {
-                      if(authenticatedUser != "") {
+                      if (authenticatedUser != "") {
                         setState(() {
                           _futureJoinLineResponse =
                               joinLineAuthenticated(value, authenticatedUser);

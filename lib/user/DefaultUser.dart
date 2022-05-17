@@ -10,7 +10,8 @@ import '../main.dart';
 
 // DEFAULT USER CLASS
 class DefaultUser extends StatefulWidget {
-  const DefaultUser({Key? key,  required this.userID, required this.lineID}) : super(key: key);
+  const DefaultUser({Key? key, required this.userID, required this.lineID})
+      : super(key: key);
   final int lineID;
   final String userID;
   @override
@@ -20,15 +21,15 @@ class DefaultUser extends StatefulWidget {
 class _DefaultUserState extends State<DefaultUser> {
   var lineCode = "";
   var lineName = "";
-  var position = 0;
+  var position = -1;
   var estWaitTime = 23;
   var number = 22;
   var offers = 0;
   var forSale = false;
+  var nextInLine = false;
   var _clockTimer;
   //will depend of whether or not line is listed in backend
   var listedPos = false;
-
 
   @override
   void dispose() {
@@ -42,7 +43,7 @@ class _DefaultUserState extends State<DefaultUser> {
     _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       print(timer.tick);
       LineDataResponse _lineDataResponse =
-      await getLineData(widget.lineID.toString(), widget.userID);
+          await getLineData(widget.lineID.toString(), widget.userID);
       var newLineName = _lineDataResponse.lineName;
       if (newLineName != lineName) {
         setState(() {
@@ -73,6 +74,13 @@ class _DefaultUserState extends State<DefaultUser> {
           lineCode = newLineCode;
         });
       }
+      setState(() {
+        nextInLine = (position == 0);
+        if (nextInLine) {
+          _clockTimer.cancel();
+          nextInLineBox(context);
+        }
+      });
     });
   }
 
@@ -92,7 +100,7 @@ class _DefaultUserState extends State<DefaultUser> {
                 alignment: Alignment.center,
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children:  [
+                    children: [
                       Flexible(
                           flex: 1,
                           child: Text('In line for:',
@@ -109,7 +117,9 @@ class _DefaultUserState extends State<DefaultUser> {
                       Flexible(
                           flex: 4,
                           child: Text(
-                            "Position: " + position.toString(),
+                            (position >= 0)
+                                ? "Position: " + position.toString()
+                                : "Position: ",
                             style: TextStyle(fontSize: 68, color: text_color),
                           ))
                     ]),
@@ -128,12 +138,15 @@ class _DefaultUserState extends State<DefaultUser> {
                     child: InkWell(
                         // todo: pop to main
                         onTap: () => {
-                          leaveLine(widget.userID),
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const NumericKeyboardPage()),
-                                  (route) => false)},
+                              leaveLine(widget.userID),
+                              // nextInLine(context),
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NumericKeyboardPage()),
+                                  (route) => false)
+                            },
                         child: const Align(
                           child: Text('Leave',
                               style:

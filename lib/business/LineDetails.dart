@@ -117,7 +117,7 @@ class _LineDetailsState extends State<LineDetails> {
                                   borderRadius: BorderRadius.circular(20)),
                               child: InkWell(
                                   // todo: DEQUEUE FUNCTION
-                                  onTap: null,
+                                  onTap: () {Dequeue(widget.lineID.toString(), "1");},
                                   child: Align(
                                     child: Column(
                                       mainAxisAlignment:

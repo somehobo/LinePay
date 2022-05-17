@@ -30,6 +30,8 @@ class OffersPage extends StatefulWidget {
 
 class _OffersPageState extends State<OffersPage> {
   var offers = [];
+  var userPos = -1;
+  var nextInLine = false;
   var _clockTimer;
 
   linePattern(int index) {
@@ -43,6 +45,8 @@ class _OffersPageState extends State<OffersPage> {
   initState() {
     super.initState();
     _clockTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      LineDataResponse _lineDataResponse =
+          await getLineData(widget.lineID.toString(), widget.userID);
       GetOffersResponse _getOffersResponse = await getOffers(widget.userID);
       var newOffersUnparsed = _getOffersResponse.amounts;
       var newOffersUnparsedLength = newOffersUnparsed.length;
@@ -60,6 +64,20 @@ class _OffersPageState extends State<OffersPage> {
           offers = newOffers;
         });
       }
+      var newPosition = _lineDataResponse.position;
+      if (newPosition != userPos) {
+        setState(() {
+          userPos = newPosition;
+        });
+      }
+      print(userPos);
+      setState(() {
+        nextInLine = (userPos == 0);
+        if (nextInLine) {
+          _clockTimer.cancel();
+          nextInLineBox(context);
+        }
+      });
     });
   }
 
@@ -112,7 +130,8 @@ class _OffersPageState extends State<OffersPage> {
                 Padding(padding: EdgeInsets.only(left: 15)),
                 TextButton(
                     onPressed: () async {
-                      var _offerResponse = await acceptOffer(offer.offerID.toString());
+                      var _offerResponse =
+                          await acceptOffer(offer.offerID.toString());
                       if (_offerResponse.accepted) {
                         Navigator.pop(context);
                       }

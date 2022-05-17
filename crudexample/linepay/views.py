@@ -185,8 +185,13 @@ def DecrementLine(request):
     decrementLineSerializer = DecrementLineSerializer(data=request.data)
     if(decrementLineSerializer.is_valid()):
         lineID = decrementLineSerializer.data['lineID']
+        line = Line.objects.get(id=lineID)
         position = decrementLineSerializer.data['position']
-        takeOutOfLine(lineID, position)
+        positions = line.positions
+        print(position)
+        if(positions != ""):
+            firstID = json.loads(positions)[position-1]
+            takeOutOfLine(line, firstID)
         return Response(decrementLineSerializer.data, status=status.HTTP_201_CREATED)
     return Response(decrementLineSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -302,7 +307,10 @@ def GetLineData(request):
         print(offersToMeSend)
         offersFromMeSend = Offer.objects.filter(line = lineID, madeBy = userID).count() or 0
         list = json.loads(line.positions)
-        positionSend = list.index(int(user.id)) + 1
+        try:
+            positionSend = list.index(int(user.id)) + 1
+        except ValueError:
+            positionSent = 0
         positionsForSale = LinepayUser.objects.filter(line=lineID,positionForSale=True)
         positionsForSaleSend = []
         if (positionsForSale):
@@ -358,6 +366,7 @@ def AcceptOffer(request):
         Offer.objects.filter(madeBy=offer.madeTo).delete()
         return Response(data={'accepted':True},status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def CreateOffer(request):
