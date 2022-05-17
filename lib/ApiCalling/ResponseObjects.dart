@@ -57,16 +57,13 @@ class userResponse {
 }
 
 class BusinessOwnerLines {
-  final Map<dynamic, dynamic>? lines;
-  final Map<dynamic, dynamic>? lineIDs;
+  final Map<String, dynamic>? lines;
+  final Map<String, dynamic>? lineIDs;
 
   const BusinessOwnerLines({required this.lines, required this.lineIDs});
-  factory BusinessOwnerLines.fromJson(
-      Map<dynamic, Map<dynamic, dynamic>> json) {
-    print(json);
-    return BusinessOwnerLines(
-      lines: json['lines'],
-      lineIDs: json['lineIDs']);
+  factory BusinessOwnerLines.fromJson(Map<String, Map<String, dynamic>> json) {
+    print('ResponeObjects: $json');
+    return BusinessOwnerLines(lines: json['lines'], lineIDs: json['lineIDs']);
   }
 }
 

@@ -1,10 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'ResponseObjects.dart';
 
 // const linePayURL = "http://10.0.2.2:8000/";
 const linePayURL = "http://127.0.0.1:8000/";
+// const linePayURL = "http://35.230.23.243/";
+
+Future<void> nextInLineBox(context) async {
+  showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('You are ready to be seated!'),
+            content: const Text('Please come to the front desk'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const MyApp())),
+                  child: const Text('Ok'))
+            ],
+          ));
+}
 
 //Join Line
 Future<JoinLineResponse> joinLineAuthenticated(
@@ -110,7 +127,7 @@ Future<BusinessOwnerLines> getBusinessOwnerLines(String boID) async {
           body: jsonEncode(<String, String>{'boID': boID}));
   if (response.statusCode == 201) {
     return BusinessOwnerLines.fromJson(
-        Map<dynamic, Map<dynamic, dynamic>>.from(jsonDecode(response.body)));
+        Map<String, Map<String, dynamic>>.from(jsonDecode(response.body)));
     // return BusinessOwnerLines.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Failed to Get Business Owner Data.');
