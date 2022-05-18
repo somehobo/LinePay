@@ -10,11 +10,13 @@ class LineDetails extends StatefulWidget {
       {Key? key,
       required this.lineName,
       required this.persons,
-      required this.lineID})
+      required this.lineID,
+      required this.lineCode})
       : super(key: key);
   final String lineName;
   final int persons;
   final int lineID;
+  final String lineCode;
 
   @override
   State<LineDetails> createState() => _LineDetailsState();
@@ -55,7 +57,17 @@ class _LineDetailsState extends State<LineDetails> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Flexible(
-            flex: 5,
+            flex: 1,
+            child: Column(
+              children: [
+                const Spacer(),
+                const Text("Line Code:", style: TextStyle(fontSize: 20)),
+                Text(widget.lineCode, style: const TextStyle(fontSize: 34)),
+              ],
+            ),
+          ),
+          Flexible(
+            flex: 4,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -117,7 +129,9 @@ class _LineDetailsState extends State<LineDetails> {
                                   borderRadius: BorderRadius.circular(20)),
                               child: InkWell(
                                   // todo: DEQUEUE FUNCTION
-                                  onTap: () {Dequeue(widget.lineID.toString(), "1");},
+                                  onTap: () {
+                                    Dequeue(widget.lineID.toString(), "1");
+                                  },
                                   child: Align(
                                     child: Column(
                                       mainAxisAlignment:
