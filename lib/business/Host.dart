@@ -22,6 +22,7 @@ class _HostPageState extends State<HostPage> {
   late Future<BusinessOwnerLines> _lines;
   late Map<String, dynamic> _linesMap;
   late Map<String, dynamic> _linesIDs;
+  late Map<String, dynamic> _lineCodes;
   Timer? _timer;
 
   StreamController<Map<String, dynamic>> streamController =
@@ -49,6 +50,7 @@ class _HostPageState extends State<HostPage> {
     _lines.then((data) {
       _linesMap = data.lines!;
       _linesIDs = data.lineIDs!;
+      _lineCodes = data.lineCodes!;
       streamController.add(_linesMap);
     });
 
@@ -58,6 +60,7 @@ class _HostPageState extends State<HostPage> {
       _lines.then((data) {
         _linesMap = data.lines!;
         _linesIDs = data.lineIDs!;
+        _lineCodes = data.lineCodes!;
         streamController.add(_linesMap);
       });
       // print("lines: $_lines");
@@ -65,11 +68,11 @@ class _HostPageState extends State<HostPage> {
     });
   }
 
-  Widget lineCard(
-      Map<String, dynamic> linesMap, Map<String, dynamic> lineIDs, int index) {
+  Widget lineCard(Map<String, dynamic> linesMap, Map<String, dynamic> lineIDs,
+      Map<String, dynamic> lineCodes, int index) {
     String name = linesMap.keys.elementAt(index);
     int persons = linesMap.values.elementAt(index);
-    int lineID = 0; //lineIDs[name]!;
+    int lineID = lineIDs[name];
     return Container(
         padding: const EdgeInsets.all(7),
         height: 50,
@@ -93,6 +96,7 @@ class _HostPageState extends State<HostPage> {
                         lineName: name,
                         persons: persons,
                         lineID: lineID,
+                        lineCode: lineCodes[name],
                       ))),
         ));
   }
@@ -147,7 +151,7 @@ class _HostPageState extends State<HostPage> {
                                       const Divider(),
                               itemBuilder: (BuildContext context, int index) {
                                 return lineCard(
-                                    snapshot.data, _linesIDs, index);
+                                    snapshot.data, _linesIDs, _lineCodes, index);
                                 // return lineCard(linesMap, lineIDs, index);
                               },
                             );

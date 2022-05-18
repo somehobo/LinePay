@@ -60,11 +60,12 @@ class userResponse {
 class BusinessOwnerLines {
   final Map<String, dynamic>? lines;
   final Map<String, dynamic>? lineIDs;
+  final Map<String, dynamic>? lineCodes;
 
-  const BusinessOwnerLines({required this.lines, required this.lineIDs});
+  const BusinessOwnerLines({required this.lines, required this.lineIDs, required this.lineCodes});
   factory BusinessOwnerLines.fromJson(Map<String, Map<String, dynamic>> json) {
     print('ResponeObjects: $json');
-    return BusinessOwnerLines(lines: json['lines'], lineIDs: json['lineIDs']);
+    return BusinessOwnerLines(lines: json['lines'], lineIDs: json['lineIDs'], lineCodes: json['lineCodes']);
   }
 }
 
