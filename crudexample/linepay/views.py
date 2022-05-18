@@ -97,10 +97,9 @@ def CreateBusinessOwner(request):
     businessOwnerSerializer = BusinessOwnerSerializer(data=request.data)
     if(businessOwnerSerializer.is_valid()):
         user = None
-        if(BusinessOwner.objects.filter(email=businessOwnerSerializer.data['email']).exists()):
-            user = BusinessOwner.objects.get(email=businessOwnerSerializer.data['email'])
-        else:
+        if (not BusinessOwner.objects.filter(email=businessOwnerSerializer.data['email']).exists()):
             user = BusinessOwner(email=businessOwnerSerializer.data['email']).save()
+        user = BusinessOwner.objects.get(email=businessOwnerSerializer.data['email'])
         data = businessOwnerSerializer.data
         data.update({"userID": str(user.id)})
         #this is because using the same response object on user side
